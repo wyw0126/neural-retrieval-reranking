@@ -1,0 +1,28 @@
+# Python / Conda
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Package and model caches
+.cache/
+
+# Datasets
+data/
+datasets/
+
+# Model artifacts
+models/
+checkpoints/
+outputs/
+indexes/
+
+# Experiment outputs
+results/candidates/
+results/rankings/
+*.log
+
+# Secrets
+.env
+.env.*
+!.env.example
