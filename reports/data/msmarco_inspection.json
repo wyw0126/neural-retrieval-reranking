@@ -1,0 +1,53 @@
+{
+  "dataset": "MS MARCO Passage",
+  "timestamp": "2026-11-20T11:16:30.817232+00:00",
+  "corpus": {
+    "rows": 8841823,
+    "unique_ids": 8841823,
+    "duplicate_ids": 0,
+    "malformed_rows": 0,
+    "empty_text_rows": 0
+  },
+  "train_queries": {
+    "rows": 808731,
+    "unique_ids": 808731,
+    "duplicate_ids": 0,
+    "malformed_rows": 0,
+    "empty_text_rows": 0
+  },
+  "dev_queries": {
+    "rows": 101093,
+    "unique_ids": 101093,
+    "duplicate_ids": 0,
+    "malformed_rows": 0,
+    "empty_text_rows": 0
+  },
+  "train_qrels": {
+    "rows": 532761,
+    "labeled_queries": 502939,
+    "malformed_rows": 0,
+    "missing_query_references": 0,
+    "missing_passage_references": 0,
+    "relevance_distribution": {
+      "1": 532761
+    }
+  },
+  "dev_qrels": {
+    "rows": 59273,
+    "labeled_queries": 55578,
+    "malformed_rows": 0,
+    "missing_query_references": 0,
+    "missing_passage_references": 0,
+    "relevance_distribution": {
+      "1": 59273
+    }
+  },
+  "train_dev_query_id_overlap": 0,
+  "sha256": {
+    "corpus": "86e0c5820be6b22280337a67e54cbb626645453d9ac3c377bac45abb81c5653d",
+    "train_queries": "4583ebd42180bf0de26a06024d4679fdf627f33cce4b0048ae4c6fc85254506a",
+    "dev_queries": "757b7e935ff46728be84cbf7d195c3e6ae479d6449d92bbb87b09fe56bebf5ee",
+    "train_qrels": "641b3c9391ea19e4a3d9e3284299f07be6725ff2dd11591a3d4d3f293db17cf2",
+    "dev_qrels": "a1befe0a99974b166b9e09408ccccae471fda5df4953fd6dd86ce4caac691752"
+  }
+}
