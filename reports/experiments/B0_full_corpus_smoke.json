@@ -1,0 +1,17 @@
+{
+  "MRR@10": 0.18328571428571425,
+  "NDCG@10": 0.22567230592739537,
+  "Recall@10": 0.365,
+  "Recall@100": 0.61,
+  "query_count": 100,
+  "corpus_count": 8841823,
+  "top_k": 100,
+  "total_search_seconds": 389.41911691002315,
+  "mean_search_ms": 3894.1911691002315,
+  "experiment_id": "B0",
+  "model": "SQLite FTS5 BM25",
+  "tokenizer": "porter unicode61",
+  "seed": 42,
+  "subset_corpus": false,
+  "split": "MS MARCO Passage v1 dev"
+}
