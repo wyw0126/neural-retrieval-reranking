@@ -1,0 +1,22 @@
+{
+  "experiment_id": "B1",
+  "model": "/data/users/youxin/neural-retrieval-reranking/models/all-MiniLM-L6-v2",
+  "model_hash": "e502cd4c833c097d450923a325c5c95750952c8a78f80818d593f9e4556220f2",
+  "index_type": "IndexIDMap2(IndexFlatIP)",
+  "embedding_dim": 384,
+  "normalize_embeddings": true,
+  "split": "MS MARCO Passage v1 dev.small",
+  "seed": 42,
+  "query_count": 100,
+  "corpus_count": 8841823,
+  "top_k": 100,
+  "query_batch_size": 128,
+  "faiss_threads": 16,
+  "query_encoding_seconds": 0.3411383320344612,
+  "faiss_search_seconds": 8.973161244008224,
+  "mean_faiss_search_ms": 89.73161244008224,
+  "MRR@10": 0.3335079365079365,
+  "NDCG@10": 0.39357517756229293,
+  "Recall@10": 0.5983333333333334,
+  "Recall@100": 0.8283333333333333
+}
