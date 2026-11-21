@@ -224,7 +224,7 @@ def search(conn, query, top_k):
         SELECT rowid, bm25(passages) AS score
         FROM passages
         WHERE passages MATCH ?
-        ORDER BY score ASC
+        ORDER BY rank
         LIMIT ?
         """,
         (expression, top_k),
@@ -324,11 +324,12 @@ def evaluate_one(retrieved, relevance):
 def evaluate(
     loader,
     index_path,
+    split="dev",
     max_queries=None,
     top_k=100,
     seed=42,
 ):
-    qrels = loader.load_qrels("dev")
+    qrels = loader.load_qrels(split)
 
     valid_qids = {
         qid
@@ -337,7 +338,7 @@ def evaluate(
     }
 
     queries = loader.load_queries(
-        "dev", query_ids=valid_qids
+        split, query_ids=valid_qids
     )
 
     missing = valid_qids - set(queries)
@@ -443,6 +444,14 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--split",
+        type=str,
+        default="dev.small",
+        choices=["dev", "dev.small"],
+        help="选择评估集：dev 或 dev.small",
+    )
+
+    parser.add_argument(
         "--data-dir",
         type=Path,
         default=ROOT / "data/raw/msmarco",
@@ -453,7 +462,7 @@ def main():
         type=Path,
         default=ROOT / "data/indexes/bm25/msmarco_fts5.db",
     )
-
+    
     parser.add_argument(
         "--output",
         type=Path,
@@ -539,6 +548,7 @@ def main():
     metrics, results = evaluate(
         loader=loader,
         index_path=args.index_path,
+        split=args.split,
         max_queries=args.max_queries,
         top_k=args.top_k,
         seed=args.seed,
@@ -549,7 +559,7 @@ def main():
     metrics["tokenizer"] = "porter unicode61"
     metrics["seed"] = args.seed
     metrics["subset_corpus"] = args.max_docs is not None
-    metrics["split"] = "MS MARCO Passage v1 dev"
+    metrics["split"] = f"MS MARCO Passage v1 {args.split}"
 
     args.output.parent.mkdir(
         parents=True, exist_ok=True
