@@ -1,6 +1,4 @@
-
-# scripts/evaluate_bm25.py
-
+#B0：评估bm25模型
 import argparse
 import json
 import math
