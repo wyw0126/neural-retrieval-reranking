@@ -102,14 +102,14 @@ class MSMARCOLoader:
         """
         加载 Query。
         split:
-            train / dev / eval
+            train / dev / eval / dev.small
         query_ids:
             可指定需要加载的 Query ID，
             避免读取无关查询。
         """
-        if split not in {"train", "dev", "eval"}:
+        if split not in {"train", "dev", "dev.small", "eval"}:
             raise ValueError(
-                "split 必须是 train、dev 或 eval"
+                "split 必须是 train、dev 、dev.small或 eval"
             )
 
         path = self._get_path(f"queries.{split}.tsv")
@@ -139,7 +139,7 @@ class MSMARCOLoader:
                 }
             }
         """
-        if split not in {"train", "dev"}:
+        if split not in {"train", "dev", "dev.small"}:
             raise ValueError(
                 "qrels 只支持 train 和 dev"
             )
