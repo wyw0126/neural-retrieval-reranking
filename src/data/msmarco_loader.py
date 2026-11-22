@@ -134,18 +134,17 @@ class MSMARCOLoader:
         加载 Query-Document 相关性标注。
         返回:
             {
-                query_id: {
-                    passage_id: relevance
-                }
+                query_id: {passage_id: relevance}
             }
         """
         if split not in {"train", "dev", "dev.small"}:
             raise ValueError(
-                "qrels 只支持 train 和 dev"
+                "qrels 只支持 train 、dev.small 和 dev"
             )
-
         path = self._get_path(f"qrels.{split}.tsv")
         qrels = defaultdict(dict)
+        duplicate_count = 0
+
 
         with path.open("r", encoding="utf-8") as f:
             for line_no, line in enumerate(f, 1):
@@ -174,12 +173,32 @@ class MSMARCOLoader:
                         f"{path}:{line_no} 相关性不能为负"
                     )
 
+                
                 if pid in qrels[qid]:
+                    old_relevance = qrels[qid][pid]
+
+                    # 同一个 Query-Passage 对有相同标签：
+                    # 属于重复记录，忽略即可。
+                    if old_relevance == relevance:
+                        duplicate_count += 1
+                        continue
+
+                    # 同一配对出现不同标签：
+                    # 不能直接覆盖，避免影响训练和评估。
                     raise ValueError(
-                        f"重复 Qrels 关系: qid={qid}, pid={pid}"
+                        f"Qrels 标注冲突: "
+                        f"qid={qid}, pid={pid}, "
+                        f"原标签={old_relevance}, "
+                        f"新标签={relevance}, "
+                        f"行号={line_no}"
                     )
 
                 qrels[qid][pid] = relevance
+
+        print(
+            f"[Qrels] {split}: "
+            f"忽略 {duplicate_count} 条相同标签的重复关系"
+        )
 
         return dict(qrels)
 
