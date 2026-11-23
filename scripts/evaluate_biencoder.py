@@ -34,6 +34,14 @@ def main():
         type=Path,
         default=ROOT / "models/all-MiniLM-L6-v2",
     )
+
+    parser.add_argument(
+        "--experiment-id",
+        type=str,
+        default="B1",
+        help="实验编号：B1、E1、E2-HN 等",
+    )
+    
     parser.add_argument(
         "--data-dir",
         type=Path,
@@ -267,7 +275,7 @@ def main():
     }
 
     report = {
-        "experiment_id": "B1",
+        "experiment_id": args.experiment_id,
         "model": str(args.model.resolve()),
         "model_hash": current_hash,
         "index_type": metadata["index_type"],
