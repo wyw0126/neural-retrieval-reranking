@@ -1,0 +1,22 @@
+{
+  "experiment_id": "E2",
+  "model": "/data/users/youxin/neural-retrieval-reranking/models/minilm-msmarco-e2-hn",
+  "model_hash": "33bc4d529d3f8c58fed5f7eddd6e94f598d39bf259fd1eb8ad34210d6fe34b21",
+  "index_type": "IndexIDMap2(IndexFlatIP)",
+  "embedding_dim": 384,
+  "normalize_embeddings": true,
+  "split": "MS MARCO Passage v1 dev.small",
+  "seed": 42,
+  "query_count": 6980,
+  "corpus_count": 8841823,
+  "top_k": 100,
+  "query_batch_size": 128,
+  "faiss_threads": 16,
+  "query_encoding_seconds": 0.7468629510258324,
+  "faiss_search_seconds": 139.47338176099584,
+  "mean_faiss_search_ms": 19.981859851145533,
+  "MRR@10": 0.3286338518215301,
+  "NDCG@10": 0.38923726522657265,
+  "Recall@10": 0.5930396370582616,
+  "Recall@100": 0.8568409742120344
+}
