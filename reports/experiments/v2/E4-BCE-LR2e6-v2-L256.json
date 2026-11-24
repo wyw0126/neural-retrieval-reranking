@@ -1,0 +1,82 @@
+{
+  "evaluation_protocol": "v2",
+  "experiment_id": "E4-BCE-LR2e6-v2-L256",
+  "stage": "E2 Bi-Encoder + Cross-Encoder Reranking",
+  "git_commit": "993a8f6e5470673861f6884816ab5fd4d705edbc",
+  "git_dirty": true,
+  "biencoder": "/data/users/youxin/neural-retrieval-reranking/models/minilm-msmarco-e2-hn",
+  "biencoder_hash": "33bc4d529d3f8c58fed5f7eddd6e94f598d39bf259fd1eb8ad34210d6fe34b21",
+  "biencoder_full_hash": "986cc4fda9befc77222b66b2fa33ba4b29ce01e3e65912224282e83b0969880c",
+  "reranker": "/data/users/youxin/neural-retrieval-reranking/models/ms-marco-MiniLM-L6-v2-e4-bce-lr2e6",
+  "reranker_hash": "4a08cd197a6203fb04d9e85cc29016d11e406877fd30ed63c81e47e26c445a7b",
+  "reranker_max_length": 256,
+  "reranker_activation": "Identity",
+  "reranker_device": "cuda",
+  "index": "/data/users/youxin/neural-retrieval-reranking/data/indexes/faiss/minilm_e2_flatip.faiss",
+  "index_hash": "69491fed2821ddc86c2fc0a9154310cb2de8c5254661a99150facb22d016a1fe",
+  "index_metadata": {
+    "index_type": "IndexIDMap2(IndexFlatIP)",
+    "embedding_dim": 384,
+    "document_count": 8841823,
+    "normalize_embeddings": true,
+    "embedding_model_hash": "33bc4d529d3f8c58fed5f7eddd6e94f598d39bf259fd1eb8ad34210d6fe34b21",
+    "embedding_manifest_sha256": "fa2da52af1f90c880955873cf0923b2a47932baf661625a04c335e9731d65f06",
+    "embedding_manifest_path": "/data/users/youxin/neural-retrieval-reranking/data/embeddings/minilm_e2/manifest.json",
+    "build_seconds": 43.943056054005865,
+    "faiss_version": "1.16.0",
+    "threads": 16
+  },
+  "faiss_device": "gpu",
+  "candidate_cache": "/data/users/youxin/neural-retrieval-reranking/data/processed/msmarco/E2_dev_small_top100.jsonl",
+  "candidate_cache_hash": "2e39ca23b7ef32b7e3c66895cc24a3bc504bf18bc8eb700dd1222b79d6c8f9bd",
+  "candidate_cache_hit": true,
+  "candidate_cache_version": "v1",
+  "collection_hash": "86e0c5820be6b22280337a67e54cbb626645453d9ac3c377bac45abb81c5653d",
+  "queries_hash": "f4f71fa87b6be4fb968cca2b8f8554c4ebd003e6c3488af3ac1cc5629c3de189",
+  "qrels_hash": "ddc607dbe7b748d7168e8675a242f0811d47febaa2e69d3af09d7ab249c68d7e",
+  "query_ids_hash": "9c8f05c6f2176cf0c6d0a028ce6d8db45da64dd5214f4a265471bbbb2027a9a0",
+  "split": "dev.small",
+  "seed": 42,
+  "query_count": 6980,
+  "corpus_count": 8841823,
+  "top_k": 100,
+  "query_batch_size": 128,
+  "rerank_batch_size": 64,
+  "query_encoding_seconds": 0.0,
+  "faiss_search_seconds": 0.0,
+  "candidate_build_statistics": {
+    "query_encoding_seconds": 1.0794207056751475,
+    "faiss_search_seconds": 2.747747630113736
+  },
+  "retrieval_configuration": {
+    "query_batch_size": 128,
+    "biencoder_max_seq_length": 256,
+    "device": "cuda",
+    "faiss_device": "gpu",
+    "faiss_gpu_id": 0,
+    "faiss_version": "1.16.0",
+    "use_float16_index": false
+  },
+  "rerank_seconds": 192.70075046573766,
+  "mean_rerank_ms_per_query": 27.607557373314847,
+  "first_stage_metrics": {
+    "MRR@10": 0.32848342202210323,
+    "NDCG@10": 0.389122575064833,
+    "Recall@10": 0.5930396370582616,
+    "Recall@100": 0.8568409742120344
+  },
+  "reranked_metrics": {
+    "MRR@10": 0.3951561718288087,
+    "NDCG@10": 0.45818083351989775,
+    "Recall@10": 0.6724212034383954,
+    "Recall@100": 0.8568409742120344
+  },
+  "improvement": {
+    "MRR@10": 0.06667274980670546,
+    "NDCG@10": 0.06905825845506475,
+    "Recall@10": 0.07938156638013383,
+    "Recall@100": 0.0
+  },
+  "rankings_output": "/data/users/youxin/neural-retrieval-reranking/data/processed/msmarco/v2/E4-BCE-LR2e6-v2-L256.jsonl",
+  "rankings_sha256": "abc827d513c2f561719d60c867931a22f4a421b3da2fbb16f833df8853fa9e75"
+}

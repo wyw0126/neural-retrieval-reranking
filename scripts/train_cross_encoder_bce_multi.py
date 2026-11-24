@@ -1,6 +1,4 @@
 
-#!/usr/bin/env python3
-# scripts/train_cross_encoder_multi.py
 
 import argparse
 import hashlib
@@ -224,11 +222,11 @@ def main():
         bf16=use_bf16,
         fp16=False,
         eval_strategy="steps",
-        eval_steps=1000,
+        eval_steps=250,
         save_strategy="steps",
-        save_steps=1000,
-        save_total_limit=3,
-        load_best_model_at_end=True,
+        save_steps=250,
+        save_total_limit=None,
+        load_best_model_at_end=False,
         metric_for_best_model="eval_loss",
         greater_is_better=False,
         logging_steps=100,
