@@ -1,0 +1,51 @@
+{
+  "margin_threshold": 0.5,
+  "original_queries": 49019,
+  "retained_queries": 46561,
+  "dropped_queries": 2458,
+  "original_negatives": 196073,
+  "retained_negatives": 151150,
+  "removed_negatives": 44923,
+  "removed_by_margin": 44923,
+  "removed_by_max_negatives": 0,
+  "removed_due_to_dropped_queries": 0,
+  "negative_removal_ratio": 0.2291136464480066,
+  "query_removal_ratio": 0.050143821783390115,
+  "retained_negative_distribution": {
+    "1": 3185,
+    "2": 5848,
+    "3": 13843,
+    "4": 23685
+  },
+  "mean_negatives_per_query": 3.24627907476214,
+  "training_pairs": 197711,
+  "rank_bucket_statistics": {
+    "1-10": {
+      "original_count": 49017,
+      "retained_count": 26349,
+      "retained_ratio": 0.5375481975641104
+    },
+    "11-30": {
+      "original_count": 49018,
+      "retained_count": 37814,
+      "retained_ratio": 0.7714309029336163
+    },
+    "31-60": {
+      "original_count": 49019,
+      "retained_count": 42420,
+      "retained_ratio": 0.8653787306962606
+    },
+    "61-100": {
+      "original_count": 49019,
+      "retained_count": 44567,
+      "retained_ratio": 0.9091780738081152
+    }
+  },
+  "experiment_id": "E5-Margin-0.5",
+  "input_sha256": "39c697e92ca28267885c7beecc457b16d4ed3f41091c1d3849986616a579345b",
+  "split_sha256": "1709b92752e433a6376e5127c96eb24d50b560a4df0c9e8481048dde3730c5e1",
+  "validation_query_count": 981,
+  "validation_sha256": "cada120d6f3cd17cc18040ff7b13fe2f40aa1dad19e7b49d0e20c874d0647514",
+  "output": "/data/users/youxin/neural-retrieval-reranking/data/processed/msmarco/e5_filtered/train_margin_0p5.jsonl",
+  "output_sha256": "b77ce5166511a394671e65acb3704ea007ad76b93411b5a98a295b3adf4b109e"
+}

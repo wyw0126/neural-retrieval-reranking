@@ -1,0 +1,43 @@
+{
+  "original_queries": 50000,
+  "original_negatives": 200000,
+  "cleaned_negatives": 199997,
+  "removed_negatives": 3,
+  "removal_ratio": 1.5e-05,
+  "affected_queries": 3,
+  "affected_query_ratio": 6e-05,
+  "empty_queries": 0,
+  "removal_reasons": {
+    "same_positive_text": 3
+  },
+  "negative_count_distribution": {
+    "3": 3,
+    "4": 49997
+  },
+  "removed_cases": [
+    {
+      "query_id": 432737,
+      "passage_id": 6867601,
+      "rank": 5,
+      "teacher_score": 9.1885986328125,
+      "margin": 0.0,
+      "reason": "same_positive_text"
+    },
+    {
+      "query_id": 633253,
+      "passage_id": 1344041,
+      "rank": 15,
+      "teacher_score": 8.550050735473633,
+      "margin": 0.0,
+      "reason": "same_positive_text"
+    },
+    {
+      "query_id": 1018822,
+      "passage_id": 5070210,
+      "rank": 3,
+      "teacher_score": 8.421710014343262,
+      "margin": 0.0,
+      "reason": "same_positive_text"
+    }
+  ]
+}
