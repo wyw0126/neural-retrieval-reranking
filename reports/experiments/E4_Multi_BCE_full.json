@@ -1,0 +1,50 @@
+{
+  "experiment_id": "E4-Multi-BCE",
+  "stage": "E2 Bi-Encoder + Cross-Encoder Reranking",
+  "biencoder": "/data/users/youxin/neural-retrieval-reranking/models/minilm-msmarco-e2-hn",
+  "reranker": "/data/users/youxin/neural-retrieval-reranking/models/ms-marco-MiniLM-L6-v2-e4-multi-bce",
+  "index": "/data/users/youxin/neural-retrieval-reranking/data/indexes/faiss/minilm_e2_flatip.faiss",
+  "faiss_device": "gpu",
+  "index_metadata": {
+    "index_type": "IndexIDMap2(IndexFlatIP)",
+    "embedding_dim": 384,
+    "document_count": 8841823,
+    "normalize_embeddings": true,
+    "embedding_model_hash": "33bc4d529d3f8c58fed5f7eddd6e94f598d39bf259fd1eb8ad34210d6fe34b21",
+    "embedding_manifest_sha256": "fa2da52af1f90c880955873cf0923b2a47932baf661625a04c335e9731d65f06",
+    "embedding_manifest_path": "/data/users/youxin/neural-retrieval-reranking/data/embeddings/minilm_e2/manifest.json",
+    "build_seconds": 43.943056054005865,
+    "faiss_version": "1.16.0",
+    "threads": 16
+  },
+  "split": "MS MARCO Passage v1 dev.small",
+  "seed": 42,
+  "query_count": 6980,
+  "corpus_count": 8841823,
+  "top_k": 100,
+  "query_batch_size": 128,
+  "rerank_batch_size": 64,
+  "query_encoding_seconds": 0.8266141386702657,
+  "faiss_search_seconds": 2.7241898101055995,
+  "rerank_seconds": 160.98467184102628,
+  "mean_rerank_ms_per_query": 23.063706567482278,
+  "first_stage_metrics": {
+    "MRR@10": 0.32848342202210323,
+    "NDCG@10": 0.389122575064833,
+    "Recall@10": 0.5930396370582616,
+    "Recall@100": 0.8568409742120344
+  },
+  "reranked_metrics": {
+    "MRR@10": 0.3926788556874524,
+    "NDCG@10": 0.4557461010689174,
+    "Recall@10": 0.6695558739255016,
+    "Recall@100": 0.8568409742120344
+  },
+  "improvement": {
+    "MRR@10": 0.06419543366534919,
+    "NDCG@10": 0.06662352600408439,
+    "Recall@10": 0.07651623686724007,
+    "Recall@100": 0.0
+  },
+  "rankings_output": "data/processed/msmarco/E4_Multi_BCE_top10.jsonl"
+}

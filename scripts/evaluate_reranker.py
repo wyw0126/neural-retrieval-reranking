@@ -257,6 +257,13 @@ def main():
     )
 
     p.add_argument(
+        "--experiment-id",
+        type=str,
+        default="E3",
+        help="实验编号，例如 E3、E4-BCE、E4-MNRL",
+    )
+    
+    p.add_argument(
         "--index",
         default="data/indexes/faiss/minilm_e2_flatip.faiss",
     )
@@ -531,8 +538,8 @@ def main():
         reranked_metrics = average_metrics(after)
 
         results = {
-            "experiment_id": "E3",
-            "stage": "E2 Bi-Encoder + pretrained Cross-Encoder",
+            "experiment_id": args.experiment_id,
+            "stage": "E2 Bi-Encoder + Cross-Encoder Reranking",
             "biencoder": str(Path(args.biencoder).resolve()),
             "reranker": str(Path(args.reranker).resolve()),
             "index": str(Path(args.index).resolve()),
