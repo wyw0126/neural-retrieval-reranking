@@ -1,0 +1,468 @@
+{
+  "experiment_id": "E4-Negative-Quality-Diagnosis",
+  "git_commit": "7ed3f1b7cf619114aae08751c3902f5574f3662c",
+  "input": "/data/users/youxin/neural-retrieval-reranking/data/processed/msmarco/e4_e2_multi_50k.jsonl",
+  "input_sha256": "507fa26faf5993be44b669997ecb931a39819ab78669330a475646678e678ff6",
+  "teacher_model": "/data/users/youxin/neural-retrieval-reranking/models/ms-marco-MiniLM-L6-v2-cross-encoder",
+  "teacher_model_hash": "d1031320dfa810d539e41f0f5de7b570d8b1bbbd99b665c5692cd1419da7ee3a",
+  "max_length": 256,
+  "activation": "Identity",
+  "device": "cuda",
+  "seed": 42,
+  "batch_size": 128,
+  "query_batch_size": 128,
+  "expected_negatives": 4,
+  "thresholds": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "data_statistics": {
+    "source_query_count": 50000,
+    "selected_query_count": 50000,
+    "selected_negative_count": 200000,
+    "source_negative_count_distribution": {
+      "4": 50000
+    },
+    "source_duplicate_negative_text_count": 0,
+    "selected_duplicate_negative_text_count": 0
+  },
+  "quality_statistics": {
+    "query_count": 50000,
+    "negative_count": 200000,
+    "positive_score_distribution": {
+      "count": 50000,
+      "mean": 7.250913754178286,
+      "std": 3.093064196492289,
+      "min": -11.343130111694336,
+      "p05": 1.412039256095887,
+      "p10": 3.5894190788269045,
+      "p25": 6.015065550804138,
+      "median": 7.955573081970215,
+      "p75": 9.36815857887268,
+      "p90": 10.227497863769532,
+      "p95": 10.603099870681762,
+      "max": 11.615291595458984
+    },
+    "negative_score_distribution": {
+      "count": 200000,
+      "mean": 2.4379061867734233,
+      "std": 5.179038979373657,
+      "min": -11.479516983032227,
+      "p05": -7.420731163024902,
+      "p10": -5.179256296157837,
+      "p25": -1.044583946466446,
+      "median": 3.2686938047409058,
+      "p75": 6.6256715059280396,
+      "p90": 8.59598970413208,
+      "p95": 9.412673425674434,
+      "max": 11.56537914276123
+    },
+    "margin_distribution": {
+      "count": 200000,
+      "mean": 4.8130075674048625,
+      "std": 5.532465363502441,
+      "min": -20.677207946777344,
+      "p05": -2.3029807269573213,
+      "p10": -0.9619914054870604,
+      "p25": 0.7105401754379272,
+      "median": 3.783347487449646,
+      "p75": 8.409269917756319,
+      "p90": 12.820729303359986,
+      "p95": 15.232633137702933,
+      "max": 22.48017406463623
+    },
+    "query_min_margin_distribution": {
+      "count": 50000,
+      "mean": 0.9072724092142657,
+      "std": 3.596099846029643,
+      "min": -20.677207946777344,
+      "p05": -4.035064148902893,
+      "p10": -2.4884859561920165,
+      "p25": -0.8276069164276123,
+      "median": 0.4060330390930176,
+      "p75": 2.4098687171936035,
+      "p90": 5.412717247009277,
+      "p95": 7.54684656858444,
+      "max": 20.828332901000977
+    },
+    "negative_ge_positive_count": 35371,
+    "negative_ge_positive_ratio": 0.176855,
+    "negative_gt_positive_count": 35359,
+    "negative_gt_positive_ratio": 0.176795,
+    "equal_score_count": 12,
+    "query_with_conflict_count": 20523,
+    "query_with_conflict_ratio": 0.41046,
+    "query_with_strict_conflict_count": 20516,
+    "query_with_strict_conflict_ratio": 0.41032,
+    "query_conflict_count_distribution": {
+      "0": {
+        "query_count": 29477,
+        "ratio": 0.58954
+      },
+      "1": {
+        "query_count": 11751,
+        "ratio": 0.23502
+      },
+      "2": {
+        "query_count": 4583,
+        "ratio": 0.09166
+      },
+      "3": {
+        "query_count": 2302,
+        "ratio": 0.04604
+      },
+      "4": {
+        "query_count": 1887,
+        "ratio": 0.03774
+      }
+    },
+    "margin_bucket_distribution": {
+      "(0, 0.5]": {
+        "count": 10405,
+        "ratio": 0.052025
+      },
+      "(0.5, 1]": {
+        "count": 9843,
+        "ratio": 0.049215
+      },
+      "(1, 2]": {
+        "count": 17802,
+        "ratio": 0.08901
+      },
+      "(2, 3]": {
+        "count": 15612,
+        "ratio": 0.07806
+      },
+      "nonpositive": {
+        "count": 35371,
+        "ratio": 0.176855
+      },
+      "(3, +inf)": {
+        "count": 110967,
+        "ratio": 0.554835
+      }
+    },
+    "margin_threshold_analysis": {
+      "0.0": {
+        "negative_count": 35371,
+        "negative_ratio": 0.176855,
+        "affected_query_count": 20523,
+        "affected_query_ratio": 0.41046
+      },
+      "0.5": {
+        "negative_count": 45776,
+        "negative_ratio": 0.22888,
+        "affected_query_count": 25843,
+        "affected_query_ratio": 0.51686
+      },
+      "1.0": {
+        "negative_count": 55619,
+        "negative_ratio": 0.278095,
+        "affected_query_count": 29955,
+        "affected_query_ratio": 0.5991
+      },
+      "2.0": {
+        "negative_count": 73421,
+        "negative_ratio": 0.367105,
+        "affected_query_count": 35725,
+        "affected_query_ratio": 0.7145
+      },
+      "3.0": {
+        "negative_count": 89033,
+        "negative_ratio": 0.445165,
+        "affected_query_count": 39572,
+        "affected_query_ratio": 0.79144
+      }
+    },
+    "rank_bucket_analysis": {
+      "1-10": {
+        "negative_count": 50000,
+        "teacher_score_distribution": {
+          "count": 50000,
+          "mean": 5.795802894575857,
+          "std": 3.871477886461563,
+          "min": -11.407194137573242,
+          "p05": -2.086873936653137,
+          "p10": 0.4242745608091361,
+          "p25": 3.904945731163025,
+          "median": 6.772521495819092,
+          "p75": 8.63894009590149,
+          "p90": 9.745197868347168,
+          "p95": 10.241946554183958,
+          "max": 11.564167022705078
+        },
+        "margin_distribution": {
+          "count": 50000,
+          "mean": 1.455110859602429,
+          "std": 3.9952434929590726,
+          "min": -20.677207946777344,
+          "p05": -3.7013951301574703,
+          "p10": -2.21905837059021,
+          "p25": -0.6050691604614258,
+          "median": 0.7155375480651855,
+          "p75": 3.0627351999282837,
+          "p90": 6.641655313968658,
+          "p95": 9.08829674888402,
+          "max": 21.91490364074707
+        },
+        "retrieval_score_distribution": {
+          "count": 50000,
+          "mean": 0.6843554613441228,
+          "std": 0.08421147434054876,
+          "min": 0.40673357248306274,
+          "p05": 0.53890360891819,
+          "p10": 0.5696972072124481,
+          "p25": 0.6260935366153717,
+          "median": 0.6887042224407196,
+          "p75": 0.7459254413843155,
+          "p90": 0.7907374501228333,
+          "p95": 0.8157606363296507,
+          "max": 0.9910416603088379
+        },
+        "negative_ge_positive_ratio": 0.36222,
+        "negative_gt_positive_ratio": 0.36208,
+        "margin_thresholds": {
+          "0.0": {
+            "count": 18111,
+            "ratio": 0.36222
+          },
+          "0.5": {
+            "count": 23122,
+            "ratio": 0.46244
+          },
+          "1.0": {
+            "count": 27208,
+            "ratio": 0.54416
+          },
+          "2.0": {
+            "count": 33178,
+            "ratio": 0.66356
+          },
+          "3.0": {
+            "count": 37261,
+            "ratio": 0.74522
+          }
+        }
+      },
+      "11-30": {
+        "negative_count": 50000,
+        "teacher_score_distribution": {
+          "count": 50000,
+          "mean": 3.0165405806678907,
+          "std": 4.71939268298147,
+          "min": -11.442138671875,
+          "p05": -6.2036909580230715,
+          "p10": -3.8889025211334225,
+          "p25": 0.080911660566926,
+          "median": 3.88849139213562,
+          "p75": 6.70956015586853,
+          "p90": 8.43321018218994,
+          "p95": 9.18906307220459,
+          "max": 11.56537914276123
+        },
+        "margin_distribution": {
+          "count": 50000,
+          "mean": 4.234373173510395,
+          "std": 5.054756333392139,
+          "min": -18.688106536865234,
+          "p05": -2.2066863775253296,
+          "p10": -0.9206695556640621,
+          "p25": 0.6983394026756287,
+          "median": 3.2742307484149933,
+          "p75": 7.222734868526459,
+          "p90": 11.383692026138304,
+          "p95": 13.88912842273712,
+          "max": 22.434205055236816
+        },
+        "retrieval_score_distribution": {
+          "count": 50000,
+          "mean": 0.6204715267241001,
+          "std": 0.08518321261097948,
+          "min": 0.36778295040130615,
+          "p05": 0.4809109002351761,
+          "p10": 0.5071640908718109,
+          "p25": 0.5573019087314606,
+          "median": 0.6207326650619507,
+          "p75": 0.683052122592926,
+          "p90": 0.7331052541732788,
+          "p95": 0.759513559937477,
+          "max": 0.8859124183654785
+        },
+        "negative_ge_positive_ratio": 0.17368,
+        "negative_gt_positive_ratio": 0.17364,
+        "margin_thresholds": {
+          "0.0": {
+            "count": 8684,
+            "ratio": 0.17368
+          },
+          "0.5": {
+            "count": 11423,
+            "ratio": 0.22846
+          },
+          "1.0": {
+            "count": 14155,
+            "ratio": 0.2831
+          },
+          "2.0": {
+            "count": 19323,
+            "ratio": 0.38646
+          },
+          "3.0": {
+            "count": 23876,
+            "ratio": 0.47752
+          }
+        }
+      },
+      "31-60": {
+        "negative_count": 50000,
+        "teacher_score_distribution": {
+          "count": 50000,
+          "mean": 1.142784991225712,
+          "std": 4.979475365338263,
+          "min": -11.443581581115723,
+          "p05": -8.03536024093628,
+          "p10": -6.125302457809448,
+          "p25": -2.313825488090515,
+          "median": 1.7217592597007751,
+          "p75": 5.083204030990601,
+          "p90": 7.32031135559082,
+          "p95": 8.303050088882445,
+          "max": 11.54715347290039
+        },
+        "margin_distribution": {
+          "count": 50000,
+          "mean": 6.108128762952574,
+          "std": 5.457375986348841,
+          "min": -18.83622646331787,
+          "p05": -1.28698935508728,
+          "p10": -0.02604389190673788,
+          "p25": 2.021393597126007,
+          "median": 5.42979222536087,
+          "p75": 9.787191331386566,
+          "p90": 13.877614903450011,
+          "p95": 15.985786461830138,
+          "max": 22.43779754638672
+        },
+        "retrieval_score_distribution": {
+          "count": 50000,
+          "mean": 0.5840102358359098,
+          "std": 0.0856880275214264,
+          "min": 0.3348068296909332,
+          "p05": 0.44950214475393296,
+          "p10": 0.4730537414550781,
+          "p25": 0.5183495879173279,
+          "median": 0.5807262063026428,
+          "p75": 0.6461656540632248,
+          "p90": 0.7005537986755371,
+          "p95": 0.7290819615125654,
+          "max": 0.8647107481956482
+        },
+        "negative_ge_positive_ratio": 0.10154,
+        "negative_gt_positive_ratio": 0.10152,
+        "margin_thresholds": {
+          "0.0": {
+            "count": 5077,
+            "ratio": 0.10154
+          },
+          "0.5": {
+            "count": 6711,
+            "ratio": 0.13422
+          },
+          "1.0": {
+            "count": 8523,
+            "ratio": 0.17046
+          },
+          "2.0": {
+            "count": 12423,
+            "ratio": 0.24846
+          },
+          "3.0": {
+            "count": 16257,
+            "ratio": 0.32514
+          }
+        }
+      },
+      "61-100": {
+        "negative_count": 50000,
+        "teacher_score_distribution": {
+          "count": 50000,
+          "mean": -0.2035037193757668,
+          "std": 4.996891283428963,
+          "min": -11.479516983032227,
+          "p05": -9.069168710708619,
+          "p10": -7.291082048416137,
+          "p25": -3.8600945472717285,
+          "median": 0.10775942727923393,
+          "p75": 3.7012662291526794,
+          "p90": 6.273804092407225,
+          "p95": 7.434739899635314,
+          "max": 11.060550689697266
+        },
+        "margin_distribution": {
+          "count": 50000,
+          "mean": 7.454417473554052,
+          "std": 5.5563057793386434,
+          "min": -17.9235577583313,
+          "p05": -0.6213513612747192,
+          "p10": 0.7072379112243654,
+          "p25": 3.2663864493370056,
+          "median": 7.10504150390625,
+          "p75": 11.392963886260986,
+          "p90": 15.128822040557857,
+          "p95": 17.047630929946898,
+          "max": 22.48017406463623
+        },
+        "retrieval_score_distribution": {
+          "count": 50000,
+          "mean": 0.5589513399553299,
+          "std": 0.0851162966501497,
+          "min": 0.32609766721725464,
+          "p05": 0.4290468990802765,
+          "p10": 0.4506318747997284,
+          "p25": 0.49354809522628784,
+          "median": 0.5535824000835419,
+          "p75": 0.6199315041303635,
+          "p90": 0.676255613565445,
+          "p95": 0.7064006209373473,
+          "max": 0.8609908223152161
+        },
+        "negative_ge_positive_ratio": 0.06998,
+        "negative_gt_positive_ratio": 0.06994,
+        "margin_thresholds": {
+          "0.0": {
+            "count": 3499,
+            "ratio": 0.06998
+          },
+          "0.5": {
+            "count": 4520,
+            "ratio": 0.0904
+          },
+          "1.0": {
+            "count": 5733,
+            "ratio": 0.11466
+          },
+          "2.0": {
+            "count": 8497,
+            "ratio": 0.16994
+          },
+          "3.0": {
+            "count": 11639,
+            "ratio": 0.23278
+          }
+        }
+      }
+    }
+  },
+  "total_scored_pairs": 250000,
+  "inference_seconds": 52.07373506191652,
+  "mean_pairs_per_second": 4800.8847397396385,
+  "total_seconds": 59.20585562195629,
+  "details_output": "/data/users/youxin/neural-retrieval-reranking/data/processed/msmarco/negative_quality_details.jsonl",
+  "details_sha256": "39c697e92ca28267885c7beecc457b16d4ed3f41091c1d3849986616a579345b",
+  "cases_output": "/data/users/youxin/neural-retrieval-reranking/reports/experiments/negative_quality_cases.json",
+  "cases_sha256": "0603512e922357575722288e826862c6d25cc39e5399503bae57046799dbdbe9",
+  "interpretation": "教师模型评分仅用于困难负例质量诊断。高分负例不等同于真实假负例，不得将教师排序冲突率直接报告为假负例率。"
+}
