@@ -5,6 +5,7 @@ import json
 import math
 import random
 import subprocess
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -20,10 +21,11 @@ from sentence_transformers import (
 
 # 复用仓库已有的 Bi-Encoder 身份计算方法。
 # 必须保持与已有 FAISS 索引的哈希算法一致。
-from encode_corpus import model_identity
-
-
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.indexing.encode_corpus import model_identity
 
 PROTOCOL_VERSION = "v2"
 CACHE_VERSION = "v1"
