@@ -1,0 +1,209 @@
+{
+  "E6-C": {
+    "best_model": {
+      "step": 300,
+      "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-300",
+      "ndcg": 0.44822219813733355,
+      "mrr": 0.38206721356568424,
+      "recall": 0.6707441386340469,
+      "report": "reports/experiments/e5_validation/E6-C/step-300.json"
+    },
+    "best_trained_model": {
+      "step": 300,
+      "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-300",
+      "ndcg": 0.44822219813733355,
+      "mrr": 0.38206721356568424,
+      "recall": 0.6707441386340469,
+      "report": "reports/experiments/e5_validation/E6-C/step-300.json"
+    },
+    "baseline": {
+      "step": 0,
+      "model": "/data/users/youxin/neural-retrieval-reranking/models/ms-marco-MiniLM-L6-v2-cross-encoder",
+      "ndcg": 0.4473012553812278,
+      "mrr": 0.3804248984677115,
+      "recall": 0.6732925586136596,
+      "report": "reports/experiments/e5_validation/step0.json"
+    },
+    "ndcg_improvement": 0.0009209427561057693,
+    "best_trained_ndcg_improvement": 0.0009209427561057693,
+    "evaluated_model_count": 22,
+    "all_results": [
+      {
+        "step": 300,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-300",
+        "ndcg": 0.44822219813733355,
+        "mrr": 0.38206721356568424,
+        "recall": 0.6707441386340469,
+        "report": "reports/experiments/e5_validation/E6-C/step-300.json"
+      },
+      {
+        "step": 550,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-550",
+        "ndcg": 0.44821441493730296,
+        "mrr": 0.38232933676358705,
+        "recall": 0.6702344546381244,
+        "report": "reports/experiments/e5_validation/E6-C/step-550.json"
+      },
+      {
+        "step": 250,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-250",
+        "ndcg": 0.4479175005129537,
+        "mrr": 0.3814232318819471,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-250.json"
+      },
+      {
+        "step": 600,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-600",
+        "ndcg": 0.44789699353921436,
+        "mrr": 0.38190298205588674,
+        "recall": 0.6702344546381244,
+        "report": "reports/experiments/e5_validation/E6-C/step-600.json"
+      },
+      {
+        "step": 800,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-800",
+        "ndcg": 0.44757871062840376,
+        "mrr": 0.3806032878662844,
+        "recall": 0.672782874617737,
+        "report": "reports/experiments/e5_validation/E6-C/step-800.json"
+      },
+      {
+        "step": 700,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-700",
+        "ndcg": 0.44756702350300726,
+        "mrr": 0.38091071630826934,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-700.json"
+      },
+      {
+        "step": 500,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-500",
+        "ndcg": 0.4474663509243761,
+        "mrr": 0.38129702441629004,
+        "recall": 0.6702344546381244,
+        "report": "reports/experiments/e5_validation/E6-C/step-500.json"
+      },
+      {
+        "step": 450,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-450",
+        "ndcg": 0.44741782888961407,
+        "mrr": 0.3810219568629351,
+        "recall": 0.6707441386340469,
+        "report": "reports/experiments/e5_validation/E6-C/step-450.json"
+      },
+      {
+        "step": 650,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-650",
+        "ndcg": 0.4473668074709857,
+        "mrr": 0.3809289193081238,
+        "recall": 0.6707441386340469,
+        "report": "reports/experiments/e5_validation/E6-C/step-650.json"
+      },
+      {
+        "step": 850,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-850",
+        "ndcg": 0.4473220785270567,
+        "mrr": 0.380539779622348,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-850.json"
+      },
+      {
+        "step": 0,
+        "model": "/data/users/youxin/neural-retrieval-reranking/models/ms-marco-MiniLM-L6-v2-cross-encoder",
+        "ndcg": 0.4473012553812278,
+        "mrr": 0.3804248984677115,
+        "recall": 0.6732925586136596,
+        "report": "reports/experiments/e5_validation/step0.json"
+      },
+      {
+        "step": 950,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-950",
+        "ndcg": 0.44722723417239213,
+        "mrr": 0.3804374383120556,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-950.json"
+      },
+      {
+        "step": 1000,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-1000",
+        "ndcg": 0.4472125197166105,
+        "mrr": 0.38042328042327994,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-1000.json"
+      },
+      {
+        "step": "final",
+        "model": "/data/users/youxin/neural-retrieval-reranking/models/e6-c-listwise-kl",
+        "ndcg": 0.4472125197166105,
+        "mrr": 0.38042328042327994,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/final.json"
+      },
+      {
+        "step": 900,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-900",
+        "ndcg": 0.44714832461105647,
+        "mrr": 0.38032579324628213,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-900.json"
+      },
+      {
+        "step": 50,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-50",
+        "ndcg": 0.44714028864677124,
+        "mrr": 0.3801830008252023,
+        "recall": 0.6732925586136596,
+        "report": "reports/experiments/e5_validation/E6-C/step-50.json"
+      },
+      {
+        "step": 400,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-400",
+        "ndcg": 0.44700268106071867,
+        "mrr": 0.3804600909340966,
+        "recall": 0.6707441386340469,
+        "report": "reports/experiments/e5_validation/E6-C/step-400.json"
+      },
+      {
+        "step": 750,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-750",
+        "ndcg": 0.4469646266504656,
+        "mrr": 0.3801162564924028,
+        "recall": 0.6717635066258919,
+        "report": "reports/experiments/e5_validation/E6-C/step-750.json"
+      },
+      {
+        "step": 350,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-350",
+        "ndcg": 0.44696417253787163,
+        "mrr": 0.380394560134621,
+        "recall": 0.6707441386340469,
+        "report": "reports/experiments/e5_validation/E6-C/step-350.json"
+      },
+      {
+        "step": 100,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-100",
+        "ndcg": 0.4468955391381663,
+        "mrr": 0.3800539617817903,
+        "recall": 0.6722731906218145,
+        "report": "reports/experiments/e5_validation/E6-C/step-100.json"
+      },
+      {
+        "step": 200,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-200",
+        "ndcg": 0.44680633407171105,
+        "mrr": 0.38080271184246683,
+        "recall": 0.6692150866462793,
+        "report": "reports/experiments/e5_validation/E6-C/step-200.json"
+      },
+      {
+        "step": 150,
+        "model": "/data/users/youxin/neural-retrieval-reranking/checkpoints/e6_c_listwise_kl/checkpoint-150",
+        "ndcg": 0.4465604240615215,
+        "mrr": 0.37989094380531657,
+        "recall": 0.6712538226299695,
+        "report": "reports/experiments/e5_validation/E6-C/step-150.json"
+      }
+    ]
+  }
+}
