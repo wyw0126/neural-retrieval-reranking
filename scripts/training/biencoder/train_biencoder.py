@@ -21,7 +21,7 @@ from sentence_transformers.training_args import BatchSamplers
 from transformers.trainer_utils import get_last_checkpoint
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def sha256(path):

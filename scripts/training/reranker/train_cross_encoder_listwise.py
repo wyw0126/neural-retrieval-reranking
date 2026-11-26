@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# scripts/train_cross_encoder_listwise.py
+# scripts/training/reranker/train_cross_encoder_listwise.py
 
 import argparse
 import hashlib
@@ -24,7 +24,7 @@ from transformers import get_linear_schedule_with_warmup
 from sentence_transformers import CrossEncoder
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 # ============================================================

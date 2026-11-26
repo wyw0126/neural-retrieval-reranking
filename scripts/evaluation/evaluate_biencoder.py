@@ -13,7 +13,7 @@ import torch
 from sentence_transformers import SentenceTransformer
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from src.data.msmarco_loader import MSMARCOLoader

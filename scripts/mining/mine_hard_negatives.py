@@ -36,7 +36,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 B1_MODEL_HASH = (
     "e502cd4c833c097d450923a325c5c95750952c8a78f80818d593f9e4556220f2"

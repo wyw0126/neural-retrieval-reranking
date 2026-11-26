@@ -23,7 +23,7 @@ from sentence_transformers import (
 from encode_corpus import model_identity
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 PROTOCOL_VERSION = "v2"
 CACHE_VERSION = "v1"
