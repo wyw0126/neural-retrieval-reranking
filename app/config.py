@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     collection_path: Path = Path("data/raw/msmarco/collection.tsv")
     document_store: Path = Path("data/processed/msmarco/documents.sqlite3")
 
+    collection_sha256: str = Field(default="86e0c5820be6b22280337a67e54cbb626645453d9ac3c377bac45abb81c5653d", pattern=r"^[0-9a-fA-F]{64}$")
+
     model_device: Literal["cpu", "cuda"] = "cuda"
     faiss_device: Literal["cpu", "gpu"] = "cpu"
     faiss_gpu_id: int = Field(default=0, ge=0)
