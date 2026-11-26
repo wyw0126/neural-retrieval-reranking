@@ -1,0 +1,6 @@
+# Install alongside the existing model runtime; do not reinstall torch/faiss here.
+pydantic-settings>=2,<3
+fastapi
+uvicorn[standard]
+httpx
+pytest
