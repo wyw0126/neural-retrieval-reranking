@@ -32,4 +32,6 @@ Run from repository root. Update local shell commands to the new paths; data/mod
 - `scripts/evaluation/evaluate_reranker.py`
 - `scripts/evaluation/select_e6_checkpoints.py`
 
-Future online service scripts: `scripts/serving/`.
+## serving
+- `scripts/serving/build_document_store.py`: build the SQLite passage database.
+- `scripts/serving/smoke_search.py`: online search CLI; run with `--query "What is machine learning?"` or `--interactive`. Use `--json` for JSON Lines records, `--warmup 2 --repeat 10` for sequential timing, and `--no-rerank` for dense-only mode.
