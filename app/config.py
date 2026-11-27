@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +33,14 @@ class Settings(BaseSettings):
     rerank_top_k: int = Field(default=10, ge=1, le=200)
     max_concurrent_searches: int = Field(default=1, ge=1)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+
+    llm_base_url: str = ""
+    llm_api_key: SecretStr = SecretStr("")
+    llm_model: str = ""
+    llm_timeout: float = Field(default=60.0, gt=0, le=300)
+    llm_temperature: float = Field(default=0.1, ge=0, le=2)
+    llm_max_tokens: int = Field(default=2048, ge=1, le=32768)
+    llm_max_retries: int = Field(default=2, ge=0, le=5)
 
     @field_validator(
         "model_biencoder", "model_reranker", "faiss_index",

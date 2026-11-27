@@ -1,0 +1,59 @@
+{
+  "source": "user-reported server HTTP benchmark, rounded to 3 decimals",
+  "requests_per_mode": 100,
+  "two_stage": {
+    "client": [
+      227.081,
+      222.069,
+      269.042,
+      282.003
+    ],
+    "http_server": [
+      225.282,
+      220.575,
+      267.021,
+      280.14
+    ],
+    "total": [
+      224.247,
+      219.665,
+      265.883,
+      279.128
+    ],
+    "retrieval_mean": 196.243,
+    "document_lookup_mean": 1.764,
+    "reranking_mean": 26.236,
+    "overhead_ms": 2.835
+  },
+  "dense_only": {
+    "client": [
+      198.237,
+      192.05,
+      238.906,
+      262.33
+    ],
+    "http_server": [
+      195.957,
+      190.121,
+      237.058,
+      258.028
+    ],
+    "total": [
+      194.276,
+      188.998,
+      232.739,
+      256.837
+    ],
+    "retrieval_mean": 192.379,
+    "document_lookup_mean": 1.859,
+    "reranking_mean": 0,
+    "overhead_ms": 3.961
+  },
+  "array_order": [
+    "mean",
+    "p50",
+    "p95",
+    "p99"
+  ],
+  "unit": "ms"
+}
