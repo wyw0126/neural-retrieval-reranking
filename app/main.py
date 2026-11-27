@@ -4,7 +4,8 @@ from collections.abc import Callable
 from contextlib import asynccontextmanager
 from time import perf_counter
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
+from app.api.dependencies import EngineDep
 
 from app.config import Settings, load_settings
 from app.schemas import HealthResponse, ModelInfoResponse
@@ -58,16 +59,11 @@ def create_app(
     application.state.engine = None
 
     @application.get("/health", response_model=HealthResponse, tags=["system"])
-    def health(request: Request):
-        if not request.app.state.ready:
-            raise HTTPException(status_code=503, detail="Retrieval engine not ready")
+    def health(engine: EngineDep):
         return HealthResponse(status="ok", ready=True)
 
     @application.get("/models", response_model=ModelInfoResponse, tags=["system"])
-    def models(request: Request):
-        engine = request.app.state.engine
-        if not request.app.state.ready or engine is None:
-            raise HTTPException(status_code=503, detail="Retrieval engine not ready")
+    def models(engine: EngineDep):
         return ModelInfoResponse.model_validate(engine.model_info())
 
     application.include_router(router)

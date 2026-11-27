@@ -1,7 +1,8 @@
 """HTTP retrieval routes; blocking inference runs in FastAPI's worker pool."""
 from time import perf_counter
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
+from app.api.dependencies import EngineDep, SettingsDep
 
 from app.retrieval.document_store import Document
 from app.schemas import (
@@ -12,25 +13,17 @@ from app.schemas import (
 router = APIRouter(tags=["retrieval"])
 
 
-def _engine(request: Request):
-    state = request.app.state
-    if not state.ready or state.engine is None:
-        raise HTTPException(status_code=503, detail="Retrieval engine not ready")
-    return state.engine
 
 
 @router.post("/retrieve", response_model=SearchResponse)
-def retrieve(body: RetrieveRequest, request: Request):
+def retrieve(body: RetrieveRequest, engine: EngineDep):
     """Return dense retrieval results, without Cross-Encoder inference."""
-    engine = _engine(request)
     return SearchResponse.model_validate(engine.retrieve(body.query, top_k=body.top_k))
 
 
 @router.post("/search", response_model=SearchResponse)
-def search(body: SearchRequest, request: Request):
+def search(body: SearchRequest, engine: EngineDep, settings: SettingsDep):
     """Retrieve candidates, optionally rerank, and return the final Top K."""
-    engine = _engine(request)
-    settings = request.app.state.settings
     k = settings.retrieve_top_k if body.retrieve_top_k is None else body.retrieve_top_k
     n = min(settings.rerank_top_k, k) if body.rerank_top_k is None else body.rerank_top_k
     if n > k:
@@ -43,9 +36,8 @@ def search(body: SearchRequest, request: Request):
 
 
 @router.post("/rerank", response_model=RerankResponse)
-def rerank(body: RerankRequest, request: Request):
+def rerank(body: RerankRequest, engine: EngineDep):
     """Rerank caller-provided documents; no FAISS or SQLite lookup."""
-    engine = _engine(request)
     documents = [Document(doc.passage_id, doc.text) for doc in body.documents]
     started = perf_counter()
     results = engine.rerank(body.query, documents, top_k=body.top_k)
