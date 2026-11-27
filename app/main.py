@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 
 from app.config import Settings, load_settings
 from app.schemas import HealthResponse, ModelInfoResponse
+from app.api.routes import router
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,7 @@ def create_app(
             raise HTTPException(status_code=503, detail="Retrieval engine not ready")
         return ModelInfoResponse.model_validate(engine.model_info())
 
+    application.include_router(router)
     return application
 
 
