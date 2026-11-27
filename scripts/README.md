@@ -35,3 +35,5 @@ Run from repository root. Update local shell commands to the new paths; data/mod
 ## serving
 - `scripts/serving/build_document_store.py`: build the SQLite passage database.
 - `scripts/serving/smoke_search.py`: online search CLI; run with `--query "What is machine learning?"` or `--interactive`. Use `--json` for JSON Lines records, `--warmup 2 --repeat 10` for sequential timing, and `--no-rerank` for dense-only mode.
+
+- `scripts/serving/smoke_http.py`: validate running HTTP service; use `--warmup 3 --repeat 20 --output reports/serving/m2_http_baseline.json`.

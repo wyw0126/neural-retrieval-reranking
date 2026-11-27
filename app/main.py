@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from app.api.dependencies import EngineDep
 
 from app.config import Settings, load_settings
-from app.schemas import HealthResponse, ModelInfoResponse
+from app.schemas import HealthResponse, ModelInfoResponse, ErrorResponse
 from app.api.routes import router
 from app.api.errors import install_error_handling
 
@@ -56,6 +56,7 @@ def create_app(
         description="E2 dense retrieval and Cross-Encoder reranking",
         version="0.1.0",
         lifespan=lifespan,
+        responses={500: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
     )
     application.state.ready = False
     application.state.engine = None
@@ -69,7 +70,7 @@ def create_app(
         return ModelInfoResponse.model_validate(engine.model_info())
 
     install_error_handling(application)
-    application.include_router(router)
+    application.include_router(router, responses={422: {"model": ErrorResponse}})
     return application
 
 
