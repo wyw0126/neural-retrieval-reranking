@@ -10,6 +10,7 @@ from app.api.dependencies import EngineDep
 from app.config import Settings, load_settings
 from app.schemas import HealthResponse, ModelInfoResponse
 from app.api.routes import router
+from app.api.errors import install_error_handling
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ def create_app(
         config = settings if settings is not None else load_settings()
         application.state.settings = config
         logger.setLevel(config.log_level)
+        logging.getLogger("app.api").setLevel(config.log_level)
         started = perf_counter()
         logger.info("Initializing retrieval engine")
         engine = factory(config)
@@ -66,6 +68,7 @@ def create_app(
     def models(engine: EngineDep):
         return ModelInfoResponse.model_validate(engine.model_info())
 
+    install_error_handling(application)
     application.include_router(router)
     return application
 

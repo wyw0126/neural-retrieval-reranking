@@ -114,6 +114,13 @@ class ModelInfoResponse(ResponseModel):
     reranker_max_length: Annotated[int, Field(gt=0)]
 
 
+class ErrorDetail(ResponseModel):
+    location: list[str | int]
+    type: str
+
+
 class ErrorResponse(ResponseModel):
     code: str
     message: str
+    request_id: str
+    details: list[ErrorDetail] | None = None
