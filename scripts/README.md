@@ -37,3 +37,8 @@ Run from repository root. Update local shell commands to the new paths; data/mod
 - `scripts/serving/smoke_search.py`: online search CLI; run with `--query "What is machine learning?"` or `--interactive`. Use `--json` for JSON Lines records, `--warmup 2 --repeat 10` for sequential timing, and `--no-rerank` for dense-only mode.
 
 - `scripts/serving/smoke_http.py`: validate running HTTP service; use `--warmup 3 --repeat 20 --output reports/serving/m2_http_baseline.json`.
+
+## RAG evaluation
+- `scripts/evaluation/prepare_rag_eval.py`: freeze a seeded MS MARCO qrels pilot plus synthetic refusal cases.
+- `scripts/evaluation/evaluate_rag.py`: run two retrieval variants against a live `/rag` service, matching the server Judge setting; save manifest and per-request JSONL.
+- `scripts/evaluation/summarize_rag.py`: compare complete Judge-off/on runs, compute operational/qrels-proxy metrics and export blinded independent review records. Qrels are not gold QA answers. Run Judge settings sequentially to avoid duplicate FAISS loading.
