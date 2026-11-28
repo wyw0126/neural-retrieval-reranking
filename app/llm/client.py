@@ -14,6 +14,27 @@ from app.llm.schemas import ChatMessage, ChatResult, TokenUsage
 RETRYABLE = {408, 429, 500, 502, 503, 504}
 
 
+def message_bytes(messages: list[ChatMessage]) -> int:
+    return len(json.dumps([m.model_dump() for m in messages], ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+
+
+def prepare_json_messages(messages: list[ChatMessage], schema: type[BaseModel]) -> list[ChatMessage]:
+    instruction = (
+        "Return exactly one JSON object matching this JSON Schema. "
+        "Use the declared JSON types exactly: integers are unquoted numbers, "
+        "booleans are true or false, and arrays must contain the declared item types. "
+        "Do not use Markdown fences or add extra fields. "
+        "JSON Schema:\n" + json.dumps(schema.model_json_schema(), ensure_ascii=False)
+    )
+    # Merge into the initial system message for providers requiring one system turn.
+    prompt = list(messages)
+    if prompt[0].role == "system":
+        prompt[0] = ChatMessage(role="system", content=prompt[0].content + "\n\n" + instruction)
+    else:
+        prompt.insert(0, ChatMessage(role="system", content=instruction))
+    return prompt
+
+
 class LLMClient:
     def __init__(self, settings: Settings, *, transport=None):
         base = settings.llm_base_url.strip().rstrip("/")
@@ -89,7 +110,7 @@ class LLMClient:
         except (ValueError, TypeError, KeyError, IndexError, AttributeError):
             raise LLMResponseError("Invalid LLM response") from None
 
-    async def chat_json(self, messages: list[ChatMessage], schema: type[BaseModel]):
+    async def chat_json(self, messages: list[ChatMessage], schema: type[BaseModel], *, max_message_bytes: int | None = None):
         """Inject schema, strictly validate, and retry invalid output with safe feedback.
 
         Returned ChatResult aggregates timing, attempts and usage across completed
@@ -97,19 +118,7 @@ class LLMClient:
         """
         if not messages or any(not m.content.strip() for m in messages):
             raise ValueError("Messages must be nonempty")
-        instruction = (
-            "Return exactly one JSON object matching this JSON Schema. "
-            "Use the declared JSON types exactly: integers are unquoted numbers, "
-            "booleans are true or false, and arrays must contain the declared item types. "
-            "Do not use Markdown fences or add extra fields. "
-            "JSON Schema:\n" + json.dumps(schema.model_json_schema(), ensure_ascii=False)
-        )
-        # Merge into the initial system message for providers requiring one system turn.
-        prompt = list(messages)
-        if prompt[0].role == "system":
-            prompt[0] = ChatMessage(role="system", content=prompt[0].content + "\n\n" + instruction)
-        else:
-            prompt.insert(0, ChatMessage(role="system", content=instruction))
+        prompt = prepare_json_messages(messages, schema)
         started = perf_counter()
         attempts = 0
         usages = []
@@ -122,6 +131,8 @@ class LLMClient:
                     "Generate the complete corrected object for the original task. "
                     "Validation errors (field location and error type only): " + feedback
                 )))
+            if max_message_bytes is not None and message_bytes(current) > max_message_bytes:
+                raise LLMStructuredOutputError("JSON request exceeds message byte budget")
             result = await self.chat(current, json_mode=True)
             attempts += result.attempts
             usages.append(result.usage)
