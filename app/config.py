@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     llm_temperature: float = Field(default=0.1, ge=0, le=2)
     llm_max_tokens: int = Field(default=2048, ge=1, le=32768)
     llm_max_retries: int = Field(default=2, ge=0, le=5)
+    llm_json_retries: int = Field(default=1, ge=0, le=3)
 
     @field_validator(
         "model_biencoder", "model_reranker", "faiss_index",

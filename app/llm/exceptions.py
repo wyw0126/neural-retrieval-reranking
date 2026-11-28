@@ -15,3 +15,8 @@ class LLMRequestError(LLMError):
 
 class LLMResponseError(LLMError):
     pass
+
+
+class LLMStructuredOutputError(LLMResponseError):
+    """The model failed strict JSON/schema validation after bounded repair."""
+    pass

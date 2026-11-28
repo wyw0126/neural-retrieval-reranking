@@ -8,7 +8,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from app.config import Settings
-from app.llm.exceptions import LLMConfigurationError, LLMRequestError, LLMResponseError
+from app.llm.exceptions import LLMConfigurationError, LLMRequestError, LLMResponseError, LLMStructuredOutputError
 from app.llm.schemas import ChatMessage, ChatResult, TokenUsage
 
 RETRYABLE = {408, 429, 500, 502, 503, 504}
@@ -75,6 +75,9 @@ class LLMClient:
     def _parse(self, response, attempt, started):
         try:
             data = response.json()
+        except ValueError:
+            raise LLMResponseError("Provider returned non-JSON response; check API base URL") from None
+        try:
             choice = data["choices"][0]
             content = choice["message"]["content"]
             if not isinstance(content, str) or not content.strip():
@@ -87,14 +90,71 @@ class LLMClient:
             raise LLMResponseError("Invalid LLM response") from None
 
     async def chat_json(self, messages: list[ChatMessage], schema: type[BaseModel]):
-        result = await self.chat(messages, json_mode=True)
-        if result.finish_reason not in (None, "stop"):
-            raise LLMResponseError("Incomplete or blocked LLM response")
-        try:
-            value = json.loads(result.content)
+        """Inject schema, strictly validate, and retry invalid output with safe feedback.
+
+        Returned ChatResult aggregates timing, attempts and usage across completed
+        generation calls, not just the final successful response.
+        """
+        if not messages or any(not m.content.strip() for m in messages):
+            raise ValueError("Messages must be nonempty")
+        instruction = (
+            "Return exactly one JSON object matching this JSON Schema. "
+            "Use the declared JSON types exactly: integers are unquoted numbers, "
+            "booleans are true or false, and arrays must contain the declared item types. "
+            "Do not use Markdown fences or add extra fields. "
+            "JSON Schema:\n" + json.dumps(schema.model_json_schema(), ensure_ascii=False)
+        )
+        # Merge into the initial system message for providers requiring one system turn.
+        prompt = list(messages)
+        if prompt[0].role == "system":
+            prompt[0] = ChatMessage(role="system", content=prompt[0].content + "\n\n" + instruction)
+        else:
+            prompt.insert(0, ChatMessage(role="system", content=instruction))
+        started = perf_counter()
+        attempts = 0
+        usages = []
+        feedback = None
+        for _ in range(self.settings.llm_json_retries + 1):
+            current = list(prompt)
+            if feedback is not None:
+                current.append(ChatMessage(role="user", content=(
+                    "The previous generation failed strict JSON validation. "
+                    "Generate the complete corrected object for the original task. "
+                    "Validation errors (field location and error type only): " + feedback
+                )))
+            result = await self.chat(current, json_mode=True)
+            attempts += result.attempts
+            usages.append(result.usage)
+            if result.finish_reason not in (None, "stop"):
+                raise LLMResponseError("Incomplete or blocked LLM response")
+            try:
+                value = json.loads(result.content)
+            except ValueError:
+                feedback = "Invalid JSON syntax"
+                continue
             if not isinstance(value, dict):
-                raise ValueError("Expected object")
-            parsed = schema.model_validate(value, strict=True)
-        except (ValueError, ValidationError):
-            raise LLMResponseError("LLM output does not match JSON schema") from None
-        return parsed, result
+                feedback = "Expected a JSON object"
+                continue
+            try:
+                parsed = schema.model_validate(value, strict=True)
+            except ValidationError as exc:
+                # Never include raw output values, validator context or error messages.
+                feedback = json.dumps([
+                    {"location": list(e["loc"]), "type": e["type"]}
+                    for e in exc.errors(include_input=False, include_context=False, include_url=False)
+                ][:20], ensure_ascii=False)
+                continue
+            usage = None
+            if all(u is not None for u in usages):
+                usage = TokenUsage(
+                    prompt_tokens=sum(u.prompt_tokens for u in usages),
+                    completion_tokens=sum(u.completion_tokens for u in usages),
+                    total_tokens=sum(u.total_tokens for u in usages),
+                )
+            return parsed, result.model_copy(update={
+                "usage": usage, "attempts": attempts,
+                "elapsed_ms": (perf_counter() - started) * 1000,
+            })
+        raise LLMStructuredOutputError(
+            "LLM output does not match JSON schema after bounded repair: " + (feedback or "unknown")
+        )

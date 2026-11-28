@@ -1,11 +1,12 @@
 import asyncio
+import json
 import httpx
 import pytest
 from pydantic import BaseModel
 from app.config import Settings
 from app.llm.client import LLMClient
 from app.llm.schemas import ChatMessage
-from app.llm.exceptions import LLMConfigurationError, LLMRequestError, LLMResponseError
+from app.llm.exceptions import LLMConfigurationError, LLMRequestError, LLMResponseError, LLMStructuredOutputError
 
 
 def settings(**kwargs):
@@ -93,3 +94,65 @@ def test_missing_config():
 
 def test_secret_mask():
     assert "test-key" not in settings().model_dump_json()
+
+
+class CitationAnswer(BaseModel):
+    answer: str
+    citations: list[int]
+    insufficient_evidence: bool
+
+
+def test_schema_repair_citations():
+    calls = []
+    def handler(request):
+        payload = json.loads(request.content)
+        calls.append(payload)
+        assert payload["response_format"] == {"type":"json_object"}
+        assert '"integer"' in payload["messages"][0]["content"]
+        if len(calls) == 1:
+            return response('{"answer":"ok","citations":["[1]"],"insufficient_evidence":false}')
+        assert "int_type" in payload["messages"][-1]["content"]
+        assert "citations" in payload["messages"][-1]["content"]
+        return response('{"answer":"ok","citations":[1],"insufficient_evidence":false}')
+    async def run():
+        async with LLMClient(settings(llm_json_retries=1),transport=httpx.MockTransport(handler)) as client:
+            parsed,result = await client.chat_json(MESSAGES,CitationAnswer)
+            assert parsed.citations == [1]
+            assert result.attempts == 2 and result.usage.total_tokens == 10
+    asyncio.run(run())
+    assert len(calls) == 2 and len(MESSAGES) == 1
+
+
+def test_repair_exhausted():
+    calls = []
+    def handler(request):
+        calls.append(1)
+        return response('{"answer":42}')
+    async def run():
+        async with LLMClient(settings(llm_json_retries=1),transport=httpx.MockTransport(handler)) as client:
+            with pytest.raises(LLMStructuredOutputError,match="string_type"):
+                await client.chat_json(MESSAGES,Answer)
+    asyncio.run(run())
+    assert len(calls) == 2
+
+
+def test_repair_disabled():
+    calls = []
+    def handler(request):
+        calls.append(1)
+        return response("bad json")
+    async def run():
+        async with LLMClient(settings(llm_json_retries=0),transport=httpx.MockTransport(handler)) as client:
+            with pytest.raises(LLMStructuredOutputError,match="Invalid JSON syntax"):
+                await client.chat_json(MESSAGES,Answer)
+    asyncio.run(run())
+    assert len(calls) == 1
+
+
+def test_html_response():
+    async def run():
+        async with LLMClient(settings(),transport=httpx.MockTransport(
+                lambda _:httpx.Response(200,text="<html>dashboard</html>"))) as client:
+            with pytest.raises(LLMResponseError,match="non-JSON response"):
+                await client.chat(MESSAGES)
+    asyncio.run(run())
