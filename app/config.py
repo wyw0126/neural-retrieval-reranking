@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     llm_json_retries: int = Field(default=1, ge=0, le=3)
 
+    rag_context_budget: int = Field(default=6000, ge=64, le=100000)
+    rag_document_budget: int = Field(default=1200, ge=16, le=100000)
+    rag_min_document_budget: int = Field(default=64, ge=1)
+    rag_max_evidence: int = Field(default=10, ge=1, le=200)
+    rag_dedup_threshold: float = Field(default=0.90, gt=0, le=1)
+
     @field_validator(
         "model_biencoder", "model_reranker", "faiss_index",
         "collection_path", "document_store",
@@ -56,6 +62,8 @@ class Settings(BaseSettings):
     def validate_top_k(self):
         if self.rerank_top_k > self.retrieve_top_k:
             raise ValueError("rerank_top_k must not exceed retrieve_top_k")
+        if self.rag_min_document_budget > self.rag_document_budget:
+            raise ValueError("rag_min_document_budget must not exceed rag_document_budget")
         return self
 
     def validate_resources(self, *, require_document_store: bool = True) -> None:
