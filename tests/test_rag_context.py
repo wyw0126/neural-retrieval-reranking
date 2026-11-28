@@ -48,8 +48,35 @@ def test_budget_utf8():
 def test_global_budget():
     result=ContextBuilder(settings(rag_context_budget=180,rag_document_budget=100,
                                    rag_min_document_budget=12)).build([hit(1,"a"*100),hit(2,"b"*100,2)])
-    assert result.estimated_tokens<=180
-    assert len(result.evidence)==1
+    assert result.estimated_tokens == estimate_tokens(result.context) == 180
+    assert len(result.evidence) == 2
+    first, second = result.evidence
+    assert first.passage_id == 1 and first.text == "a"*100 and not first.truncated
+    assert second.passage_id == 2 and second.text == "b"*23 and second.truncated
+    assert result.dropped["budget"] == 0
+
+
+@pytest.mark.parametrize("budget,expected_length,expected_dropped", [
+    (168, 0, 1),  # only 11 bytes available: below minimum
+    (169, 12, 0), # exactly the minimum: retain
+])
+def test_global_budget_minimum_boundary(budget, expected_length, expected_dropped):
+    result = ContextBuilder(settings(rag_context_budget=budget, rag_document_budget=100,
+                                     rag_min_document_budget=12)).build(
+        [hit(1, "a"*100), hit(2, "b"*100, 2)]
+    )
+    assert result.estimated_tokens == estimate_tokens(result.context) <= budget
+    assert result.evidence[0].text == "a"*100
+    assert not result.evidence[0].truncated
+    assert result.dropped["budget"] == expected_dropped
+    assert len(result.evidence) + sum(result.dropped.values()) == result.input_count
+    if expected_length:
+        assert len(result.evidence) == 2
+        assert result.evidence[1].text == "b"*expected_length
+        assert result.evidence[1].truncated
+        assert result.estimated_tokens == budget
+    else:
+        assert len(result.evidence) == 1
 
 
 def test_empty():
