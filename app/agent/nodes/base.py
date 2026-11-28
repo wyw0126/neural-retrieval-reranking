@@ -11,6 +11,8 @@ from app.rag.citations import CitationValidator, CitationReport
 from app.rag.schemas import RAGAnswer
 from app.agent.tools import ToolRegistry
 from app.agent.router import choose_route, social_reply
+from app.agent.rewrite import rewrite_query
+from app.agent.fusion import fuse_results
 
 
 def event(node, started, status="ok"):
@@ -54,19 +56,31 @@ class AgentNodes:
                                   citations=[],insufficient_evidence=True),
                 "refusal_reason":"unsupported_task","trace":event("unsupported",t,"refused")}
 
+    async def rewrite(self,state: AgentState):
+        t=perf_counter()
+        queries,result=await rewrite_query(state["query"],self.llm,self.settings.rag_prompt_budget_bytes)
+        return {"search_query":queries[0],"search_queries":queries,
+                "rewrite_model":result.model,"rewrite_usage":result.usage,
+                "rewrite_attempts":result.attempts,"trace":event("rewrite",t)}
+
     async def retrieve(self,state: AgentState):
         t=perf_counter()
         name="reranked_search" if state["use_reranker"] else "dense_search"
-        search=await self.tools.invoke(name,{"query":state["search_query"],
-            "retrieve_top_k":state["retrieve_top_k"],"top_k":state["rerank_top_k"]})
-        return {"search":search,"tool_calls":[{"name":name,
-            "retrieve_top_k":search.requested_retrieve_top_k,
-            "top_k":search.requested_result_top_k,
-            "result_count":len(search.results)}],"trace":event("retrieve",t)}
+        runs=[]
+        calls=[]
+        for query in state["search_queries"]:
+            search=await self.tools.invoke(name,{"query":query,
+                "retrieve_top_k":state["retrieve_top_k"],"top_k":state["rerank_top_k"]})
+            runs.append(search)
+            calls.append({"name":name,"retrieve_top_k":search.requested_retrieve_top_k,
+                "top_k":search.requested_result_top_k,"result_count":len(search.results)})
+        hits,scores=fuse_results(runs,state["rerank_top_k"])
+        return {"search":runs[0],"search_runs":runs,"fused_hits":hits,"fusion_scores":scores,
+                "tool_calls":calls,"trace":event("retrieve",t)}
 
     async def context(self,state: AgentState):
         t=perf_counter()
-        context=await asyncio.to_thread(self.context_builder.build,state["search"].results)
+        context=await asyncio.to_thread(self.context_builder.build,state["fused_hits"])
         return {"context":context,"trace":event("context",t)}
 
     async def generate(self,state: AgentState):

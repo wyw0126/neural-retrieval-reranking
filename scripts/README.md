@@ -47,3 +47,5 @@ Run from repository root. Update local shell commands to the new paths; data/mod
 - `scripts/serving/smoke_agent.py`: run the LangGraph agent against the existing retrieval service. M4.2 routes retrieval through an allowlisted tool registry; use `--no-rerank` to select dense_search, otherwise reranked_search. Tool metadata is recorded separately from node traces.
 
 M4.3: pass `--auto-route` to smoke_agent.py to enable model task routing; `--no-rerank` forces fixed dense mode. Default AGENT_ROUTER_ENABLED=false. Social responses are explicitly non-grounded; factual questions cannot use the guarded direct branch.
+
+M4.4: --rewrite enables up to three English search queries, sequential retrieval and RRF fusion; --no-rewrite forces baseline. Original question is always used for generation. candidate_count sums per-query candidates (not unique corpus IDs); retrieval_runs contains per-query metadata; final evidence scores are representative query scores, not fused scores.

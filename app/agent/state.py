@@ -3,7 +3,7 @@ from operator import add
 from typing import Annotated, TypedDict
 from typing_extensions import NotRequired
 
-from app.schemas import SearchResponse
+from app.schemas import SearchResponse, SearchHitResponse
 from app.rag.context import ContextResult, Evidence
 from app.rag.schemas import RAGAnswer
 from app.rag.citations import CitationReport
@@ -33,6 +33,14 @@ class AgentState(TypedDict):
     trace: Annotated[list[TraceEvent], add]
     tool_calls: Annotated[list[ToolEvent], add]
     auto_route: bool
+    rewrite_enabled: bool
+    search_queries: list[str]
+    rewrite_model: NotRequired[str | None]
+    rewrite_usage: NotRequired[TokenUsage | None]
+    rewrite_attempts: NotRequired[int]
+    search_runs: NotRequired[list[SearchResponse]]
+    fused_hits: NotRequired[list[SearchHitResponse]]
+    fusion_scores: NotRequired[dict[int, float]]
     route: NotRequired[str]
     route_source: NotRequired[str]
     router_model: NotRequired[str | None]

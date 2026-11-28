@@ -12,12 +12,15 @@ from app.schemas import SearchRequest
 
 
 def entry_route(state: AgentState):
-    return "route" if state["auto_route"] else "retrieve"
+    return "route" if state["auto_route"] else retrieval_entry(state)
+
+
+def retrieval_entry(state: AgentState):
+    return "rewrite" if state["rewrite_enabled"] else "retrieve"
 
 
 def after_route(state: AgentState):
-    return {"dense_search":"retrieve","reranked_search":"retrieve",
-            "direct":"direct","unsupported":"unsupported"}[state["route"]]
+    return state["route"] if state["route"] in ("direct","unsupported") else retrieval_entry(state)
 
 
 def after_context(state: AgentState):
@@ -29,10 +32,12 @@ class AgentEngine:
         self.settings=settings
         nodes=AgentNodes(settings,retrieval,llm)
         builder=StateGraph(AgentState)
-        for name in ("route","direct","unsupported","retrieve","context","generate","validate","refuse"):
+        for name in ("route","direct","unsupported","rewrite","retrieve","context","generate","validate","refuse"):
             builder.add_node(name,getattr(nodes,name))
-        builder.add_conditional_edges(START,entry_route,{"route":"route","retrieve":"retrieve"})
-        builder.add_conditional_edges("route",after_route,{"retrieve":"retrieve","direct":"direct","unsupported":"unsupported"})
+        builder.add_conditional_edges(START,entry_route,{"route":"route","retrieve":"retrieve","rewrite":"rewrite"})
+        builder.add_conditional_edges("route",after_route,{"retrieve":"retrieve","rewrite":"rewrite","direct":"direct","unsupported":"unsupported"}
+        )
+        builder.add_edge("rewrite","retrieve")
         builder.add_edge("direct",END)
         builder.add_edge("unsupported",END)
         builder.add_edge("retrieve","context")
@@ -43,7 +48,7 @@ class AgentEngine:
         self.graph=builder.compile()
 
     async def answer(self,query: str,*,retrieve_top_k: int | None=None,
-                     rerank_top_k: int | None=None,use_reranker: bool=True,auto_route: bool | None=None):
+                     rerank_top_k: int | None=None,use_reranker: bool=True,auto_route: bool | None=None,rewrite: bool | None=None):
         body=SearchRequest(query=query,retrieve_top_k=retrieve_top_k,
                            rerank_top_k=rerank_top_k,use_reranker=use_reranker)
         k=self.settings.retrieve_top_k if body.retrieve_top_k is None else body.retrieve_top_k
@@ -53,10 +58,15 @@ class AgentEngine:
         auto=self.settings.agent_router_enabled if auto_route is None else auto_route
         if type(auto) is not bool:
             raise ValueError("auto_route must be a boolean")
+        rewrite_enabled=self.settings.agent_rewrite_enabled if rewrite is None else rewrite
+        if type(rewrite_enabled) is not bool:
+            raise ValueError("rewrite must be a boolean")
         initial: AgentState={"query":body.query,"search_query":body.query,"retrieve_top_k":k,
             "rerank_top_k":n,"use_reranker":body.use_reranker,"retry_count":0,"trace":[],"tool_calls":[],"auto_route":auto,
             "route":"reranked_search" if body.use_reranker else "dense_search",
-            "route_source":"fixed","router_model":None,"router_usage":None,"router_attempts":0}
+            "route_source":"fixed","router_model":None,"router_usage":None,"router_attempts":0,
+            "rewrite_enabled":rewrite_enabled,"search_queries":[body.query],
+            "rewrite_model":None,"rewrite_usage":None,"rewrite_attempts":0}
         started=perf_counter()
         final=await self.graph.ainvoke(initial,config={"recursion_limit":16})
         # Publish only final validated output and bounded operational trace.
@@ -64,6 +74,9 @@ class AgentEngine:
         routing={"route":final["route"],"route_source":final["route_source"],
                  "router_model":final["router_model"],"router_attempts":final["router_attempts"],
                  "router_usage":final["router_usage"].model_dump(mode="json") if final["router_usage"] else None}
+        routing.update(search_queries=final["search_queries"],rewrite_model=final["rewrite_model"],
+                       rewrite_attempts=final["rewrite_attempts"],
+                       rewrite_usage=final["rewrite_usage"].model_dump(mode="json") if final["rewrite_usage"] else None)
         if final["route"] in ("direct","unsupported"):
             direct=final["route"]=="direct"
             # Direct social replies are explicitly non-grounded, not RAGAnswer objects.
@@ -75,15 +88,20 @@ class AgentEngine:
                     "candidate_count":0,"retrieved_count":0,"dropped":{},"context_budget_units":0,
                     "context_count_method":None,"prompt_bytes":0,"model":None,"usage":None,"attempts":0,
                     "judge_model":None,"judge_usage":None,"judge_attempts":0,"trace":final["trace"],
-                    "tool_calls":[],"retrieval_timings_ms":{},"total_ms":(perf_counter()-started)*1000,**routing}
+                    "tool_calls":[],"retrieval_runs":[],"fusion_scores":{},"retrieval_timings_ms":{},"total_ms":(perf_counter()-started)*1000,**routing}
         context=final["context"]
+        runs=final["search_runs"]
+        timings={}
+        for run in runs:
+            for key,value in run.timings_ms.items():
+                timings[key]=timings.get(key,0.0)+value
         return {**routing,"answer_mode":"grounded_rag","query":final["query"],"search_query":final["search_query"],
                 "answer":final["answer"].model_dump(mode="json"),
                 "evidence":[asdict(e) for e in context.evidence],
                 "cited_evidence":[asdict(e) for e in final["cited_evidence"]],
                 "citation_report":asdict(final["citation_report"]),
                 "refusal_reason":final["refusal_reason"],"retry_count":final["retry_count"],
-                "candidate_count":final["search"].candidate_count,"retrieved_count":context.input_count,
+                "candidate_count":sum(run.candidate_count for run in runs),"retrieved_count":context.input_count,
                 "dropped":context.dropped,"context_budget_units":context.estimated_tokens,
                 "context_count_method":context.count_method,
                 "prompt_bytes":final["prompt_bytes"],"model":final["model"],
@@ -92,5 +110,7 @@ class AgentEngine:
                 "judge_usage":final["judge_usage"].model_dump(mode="json") if final["judge_usage"] else None,
                 "judge_attempts":final["judge_attempts"],"trace":final["trace"],
                 "tool_calls":final["tool_calls"],
-                "retrieval_timings_ms":final["search"].timings_ms,
+                "retrieval_timings_ms":timings,
+                "retrieval_runs":[{"query":r.query,"candidate_count":r.candidate_count,"result_count":len(r.results),"timings_ms":r.timings_ms} for r in runs],
+                "fusion_scores":{str(k):v for k,v in final["fusion_scores"].items()},
                 "total_ms":(perf_counter()-started)*1000}

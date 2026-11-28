@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     llm_json_retries: int = Field(default=1, ge=0, le=3)
 
     agent_router_enabled: bool = False
+    agent_rewrite_enabled: bool = False
 
     rag_enabled: bool = False
     rag_max_concurrent_requests: int = Field(default=4, ge=1, le=100)
