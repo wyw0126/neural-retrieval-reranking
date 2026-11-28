@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     llm_json_retries: int = Field(default=1, ge=0, le=3)
 
+    rag_enabled: bool = False
+    rag_max_concurrent_requests: int = Field(default=4, ge=1, le=100)
+    rag_request_timeout: float = Field(default=120.0, gt=0, le=900)
     rag_semantic_validation: bool = False
     rag_prompt_budget_bytes: int = Field(default=16000, ge=1024, le=1000000)
     rag_prompt_retry_reserve_bytes: int = Field(default=2048, ge=0, le=100000)
