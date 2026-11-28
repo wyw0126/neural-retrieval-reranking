@@ -9,7 +9,7 @@ from app.rag.context import ContextBuilder
 from app.rag.prompts import PromptBuilder
 from app.rag.citations import CitationValidator, CitationReport
 from app.rag.schemas import RAGAnswer
-from app.schemas import SearchResponse
+from app.agent.tools import ToolRegistry
 
 
 def event(node, started, status="ok"):
@@ -20,6 +20,7 @@ class AgentNodes:
     def __init__(self, settings: Settings, retrieval: SearchBackend, llm: GenerationBackend):
         self.settings=settings
         self.retrieval=retrieval
+        self.tools=ToolRegistry(settings,retrieval)
         self.llm=llm
         self.context_builder=ContextBuilder(settings)
         self.prompt_builder=PromptBuilder(settings)
@@ -27,11 +28,13 @@ class AgentNodes:
 
     async def retrieve(self,state: AgentState):
         t=perf_counter()
-        raw=await asyncio.to_thread(self.retrieval.search,state["search_query"],
-            retrieve_top_k=state["retrieve_top_k"],rerank_top_k=state["rerank_top_k"],
-            use_reranker=state["use_reranker"])
-        search=SearchResponse.model_validate(raw)
-        return {"search":search,"trace":event("retrieve",t)}
+        name="reranked_search" if state["use_reranker"] else "dense_search"
+        search=await self.tools.invoke(name,{"query":state["search_query"],
+            "retrieve_top_k":state["retrieve_top_k"],"top_k":state["rerank_top_k"]})
+        return {"search":search,"tool_calls":[{"name":name,
+            "retrieve_top_k":search.requested_retrieve_top_k,
+            "top_k":search.requested_result_top_k,
+            "result_count":len(search.results)}],"trace":event("retrieve",t)}
 
     async def context(self,state: AgentState):
         t=perf_counter()

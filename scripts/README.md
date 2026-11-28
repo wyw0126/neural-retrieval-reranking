@@ -42,3 +42,6 @@ Run from repository root. Update local shell commands to the new paths; data/mod
 - `scripts/evaluation/prepare_rag_eval.py`: freeze a seeded MS MARCO qrels pilot plus synthetic refusal cases.
 - `scripts/evaluation/evaluate_rag.py`: run two retrieval variants against a live `/rag` service, matching the server Judge setting; save manifest and per-request JSONL.
 - `scripts/evaluation/summarize_rag.py`: compare complete Judge-off/on runs, compute operational/qrels-proxy metrics and export blinded independent review records. Qrels are not gold QA answers. Run Judge settings sequentially to avoid duplicate FAISS loading.
+
+## Agent
+- `scripts/serving/smoke_agent.py`: run the LangGraph agent against the existing retrieval service. M4.2 routes retrieval through an allowlisted tool registry; use `--no-rerank` to select dense_search, otherwise reranked_search. Tool metadata is recorded separately from node traces.

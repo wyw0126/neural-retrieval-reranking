@@ -16,6 +16,13 @@ class TraceEvent(TypedDict):
     status: str
 
 
+class ToolEvent(TypedDict):
+    name: str
+    retrieve_top_k: int
+    top_k: int
+    result_count: int
+
+
 class AgentState(TypedDict):
     query: str
     search_query: str
@@ -24,6 +31,7 @@ class AgentState(TypedDict):
     use_reranker: bool
     retry_count: int
     trace: Annotated[list[TraceEvent], add]
+    tool_calls: Annotated[list[ToolEvent], add]
     search: NotRequired[SearchResponse]
     context: NotRequired[ContextResult]
     answer: NotRequired[RAGAnswer]

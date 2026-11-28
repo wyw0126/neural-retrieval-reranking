@@ -50,6 +50,7 @@ def test_graph_success():
     assert r["query"]=="ML?" and r["cited_evidence"][0]["passage_id"]==42
     assert [t["node"] for t in r["trace"]]==["retrieve","context","generate","validate"]
     assert all(t["elapsed_ms"]>=0 for t in r["trace"])
+    assert r["tool_calls"]==[{"name":"reranked_search","retrieve_top_k":100,"top_k":10,"result_count":1}]
     assert r["usage"]["total_tokens"]==15 and r["retry_count"]==0
     assert r["citation_report"]["structural_status"]=="passed"
     json.dumps(r,allow_nan=False)
@@ -99,3 +100,8 @@ def test_state_isolation():
         assert x["query"]=="First?" and y["query"]=="Second?"
         assert len(x["trace"])==len(y["trace"])==4
     asyncio.run(run())
+
+
+def test_dense_tool_path():
+    r=asyncio.run(engine().answer("ML?",retrieve_top_k=3,use_reranker=False))
+    assert r["tool_calls"]==[{"name":"dense_search","retrieve_top_k":3,"top_k":3,"result_count":1}]

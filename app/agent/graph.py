@@ -39,7 +39,7 @@ class AgentEngine:
         if n>k:
             raise ValueError("rerank_top_k must not exceed retrieve_top_k")
         initial: AgentState={"query":body.query,"search_query":body.query,"retrieve_top_k":k,
-            "rerank_top_k":n,"use_reranker":body.use_reranker,"retry_count":0,"trace":[]}
+            "rerank_top_k":n,"use_reranker":body.use_reranker,"retry_count":0,"trace":[],"tool_calls":[]}
         started=perf_counter()
         final=await self.graph.ainvoke(initial,config={"recursion_limit":16})
         # Publish only final validated output and bounded operational trace.
@@ -59,5 +59,6 @@ class AgentEngine:
                 "attempts":final["attempts"],"judge_model":final["judge_model"],
                 "judge_usage":final["judge_usage"].model_dump(mode="json") if final["judge_usage"] else None,
                 "judge_attempts":final["judge_attempts"],"trace":final["trace"],
+                "tool_calls":final["tool_calls"],
                 "retrieval_timings_ms":final["search"].timings_ms,
                 "total_ms":(perf_counter()-started)*1000}
