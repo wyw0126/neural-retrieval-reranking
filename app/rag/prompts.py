@@ -17,6 +17,8 @@ Use the language of the question. If evidence is missing, conflicting without a
 supported resolution, or insufficient to answer, explain briefly that it is insufficient.
 For a supported answer, cite the supporting evidence using inline [1], [2] markers
 and list exactly those evidence IDs as unique positive integers in citations.
+Use separate canonical markers [1] [2], not [1,2], [1-2], [01], or nested brackets.
+Place markers next to each supported material factual claim.
 Use only IDs present in the evidence array; do not cite passage IDs or invent IDs.
 For insufficient evidence return a short refusal, citations=[] and insufficient_evidence=true.
 Return exactly one JSON object without Markdown fences.

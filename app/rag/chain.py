@@ -9,6 +9,7 @@ from app.llm.schemas import ChatResult, TokenUsage
 from app.rag.context import ContextBuilder, Evidence
 from app.rag.prompts import PromptBuilder
 from app.rag.schemas import RAGAnswer
+from app.rag.citations import CitationReport, CitationValidator, RAGCitationError
 
 
 class SearchBackend(Protocol):
@@ -18,10 +19,6 @@ class SearchBackend(Protocol):
 
 class GenerationBackend(Protocol):
     async def chat_json(self, messages, schema, *, max_message_bytes: int | None = None): ...
-
-
-class RAGCitationError(ValueError):
-    """A generated citation points outside the selected evidence."""
 
 
 @dataclass(frozen=True)
@@ -42,11 +39,16 @@ class RAGResult:
     timings_ms: dict[str, float]
     retrieval_timings_ms: dict[str, float]
     refusal_reason: str | None
+    citation_report: CitationReport
+    judge_model: str | None
+    judge_usage: TokenUsage | None
+    judge_attempts: int
 
     def to_dict(self) -> dict:
         data = asdict(self)
         data["answer"] = self.answer.model_dump(mode="json")
         data["usage"] = self.usage.model_dump(mode="json") if self.usage is not None else None
+        data["judge_usage"] = self.judge_usage.model_dump(mode="json") if self.judge_usage is not None else None
         return data
 
 
@@ -58,6 +60,7 @@ class RAGEngine:
         self.llm = llm
         self.context_builder = ContextBuilder(settings)
         self.prompt_builder = PromptBuilder(settings)
+        self.citation_validator = CitationValidator(settings, llm)
 
     async def answer(self, query: str, *, retrieve_top_k: int | None = None,
                      rerank_top_k: int | None = None, use_reranker: bool = True) -> RAGResult:
@@ -90,6 +93,9 @@ class RAGEngine:
         prompt_ms = generation_ms = citation_ms = 0.0
         llm_result: ChatResult | None = None
         refusal_reason = None
+        judge_result: ChatResult | None = None
+        judge_ms = 0.0
+        report = CitationReport("not_applicable", "not_run", ())
         if not context.evidence:
             # Bilingual fallback when no generation call is warranted.
             answer = RAGAnswer(answer="当前检索证据不足，无法回答。 / The retrieved evidence is insufficient.",
@@ -110,13 +116,20 @@ class RAGEngine:
             answer = RAGAnswer.model_validate(answer.model_dump() if isinstance(answer, RAGAnswer) else answer,
                                              strict=True)
             t = perf_counter()
-            by_id = {e.evidence_id: e for e in context.evidence}
-            if any(i not in by_id for i in answer.citations):
-                raise RAGCitationError("Generated citation ID is outside selected evidence")
-            cited = tuple(by_id[i] for i in answer.citations)
+            cited, report = self.citation_validator.validate(answer, context.evidence)
             citation_ms = (perf_counter()-t)*1000
             if answer.insufficient_evidence:
                 refusal_reason = "model_insufficient_evidence"
+            elif self.settings.rag_semantic_validation:
+                t = perf_counter()
+                report, judge_result = await self.citation_validator.judge(query, answer, cited, report)
+                judge_ms = (perf_counter()-t)*1000
+                if report.semantic_status != "supported":
+                    # Keep diagnostics and retrieved evidence, not the rejected answer.
+                    answer = RAGAnswer(answer="当前证据未能充分支持回答。 / The answer could not be verified against the evidence.",
+                                       citations=[], insufficient_evidence=True)
+                    cited = ()
+                    refusal_reason = "semantic_" + report.semantic_status
 
         return RAGResult(
             query=query, answer=answer, evidence=context.evidence, cited_evidence=cited,
@@ -128,6 +141,10 @@ class RAGEngine:
             attempts=llm_result.attempts if llm_result is not None else 0,
             timings_ms={"retrieval": retrieval_ms, "context": context_ms,
                         "prompt": prompt_ms, "generation": generation_ms,
-                        "citation": citation_ms, "total": (perf_counter()-started)*1000},
+                        "citation": citation_ms, "judge": judge_ms, "total": (perf_counter()-started)*1000},
             retrieval_timings_ms=dict(search.timings_ms), refusal_reason=refusal_reason,
+            citation_report=report,
+            judge_model=judge_result.model if judge_result is not None else None,
+            judge_usage=judge_result.usage if judge_result is not None else None,
+            judge_attempts=judge_result.attempts if judge_result is not None else 0,
         )
