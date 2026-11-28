@@ -1,0 +1,2 @@
+# Install into the existing service virtualenv.
+langgraph==1.2.24
