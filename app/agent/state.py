@@ -32,6 +32,13 @@ class AgentState(TypedDict):
     retry_count: int
     trace: Annotated[list[TraceEvent], add]
     tool_calls: Annotated[list[ToolEvent], add]
+    auto_route: bool
+    route: NotRequired[str]
+    route_source: NotRequired[str]
+    router_model: NotRequired[str | None]
+    router_usage: NotRequired[TokenUsage | None]
+    router_attempts: NotRequired[int]
+    direct_text: NotRequired[str]
     search: NotRequired[SearchResponse]
     context: NotRequired[ContextResult]
     answer: NotRequired[RAGAnswer]

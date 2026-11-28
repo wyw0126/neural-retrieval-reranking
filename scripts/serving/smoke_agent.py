@@ -21,7 +21,8 @@ async def run(args):
     async with LLMClient(settings) as llm:
         agent=AgentEngine(settings,HTTPBackend(args.base_url),llm)
         result=await agent.answer(args.query,retrieve_top_k=args.retrieve_top_k,
-                                  rerank_top_k=args.top_k,use_reranker=not args.no_rerank)
+                                  rerank_top_k=args.top_k,use_reranker=not args.no_rerank,
+                                  auto_route=True if args.auto_route else False if args.no_rerank else None)
     print(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
     if args.expect_answer and result["answer"]["insufficient_evidence"]:
         raise SystemExit("Agent abstained; inspect evidence")
@@ -34,7 +35,9 @@ def main():
     p.add_argument("--base-url",default="http://127.0.0.1:8000")
     p.add_argument("--retrieve-top-k",type=int)
     p.add_argument("--top-k",type=int)
-    p.add_argument("--no-rerank",action="store_true")
+    mode=p.add_mutually_exclusive_group()
+    mode.add_argument("--no-rerank",action="store_true")
+    mode.add_argument("--auto-route",action="store_true")
     p.add_argument("--expect-answer",action="store_true")
     args=p.parse_args()
     try:

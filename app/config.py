@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     llm_json_retries: int = Field(default=1, ge=0, le=3)
 
+    agent_router_enabled: bool = False
+
     rag_enabled: bool = False
     rag_max_concurrent_requests: int = Field(default=4, ge=1, le=100)
     rag_request_timeout: float = Field(default=120.0, gt=0, le=900)

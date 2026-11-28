@@ -11,6 +11,15 @@ from app.rag.chain import SearchBackend, GenerationBackend
 from app.schemas import SearchRequest
 
 
+def entry_route(state: AgentState):
+    return "route" if state["auto_route"] else "retrieve"
+
+
+def after_route(state: AgentState):
+    return {"dense_search":"retrieve","reranked_search":"retrieve",
+            "direct":"direct","unsupported":"unsupported"}[state["route"]]
+
+
 def after_context(state: AgentState):
     return "generate" if state["context"].evidence else "refuse"
 
@@ -20,9 +29,12 @@ class AgentEngine:
         self.settings=settings
         nodes=AgentNodes(settings,retrieval,llm)
         builder=StateGraph(AgentState)
-        for name in ("retrieve","context","generate","validate","refuse"):
+        for name in ("route","direct","unsupported","retrieve","context","generate","validate","refuse"):
             builder.add_node(name,getattr(nodes,name))
-        builder.add_edge(START,"retrieve")
+        builder.add_conditional_edges(START,entry_route,{"route":"route","retrieve":"retrieve"})
+        builder.add_conditional_edges("route",after_route,{"retrieve":"retrieve","direct":"direct","unsupported":"unsupported"})
+        builder.add_edge("direct",END)
+        builder.add_edge("unsupported",END)
         builder.add_edge("retrieve","context")
         builder.add_conditional_edges("context",after_context,{"generate":"generate","refuse":"refuse"})
         builder.add_edge("generate","validate")
@@ -31,21 +43,41 @@ class AgentEngine:
         self.graph=builder.compile()
 
     async def answer(self,query: str,*,retrieve_top_k: int | None=None,
-                     rerank_top_k: int | None=None,use_reranker: bool=True):
+                     rerank_top_k: int | None=None,use_reranker: bool=True,auto_route: bool | None=None):
         body=SearchRequest(query=query,retrieve_top_k=retrieve_top_k,
                            rerank_top_k=rerank_top_k,use_reranker=use_reranker)
         k=self.settings.retrieve_top_k if body.retrieve_top_k is None else body.retrieve_top_k
         n=min(self.settings.rerank_top_k,k) if body.rerank_top_k is None else body.rerank_top_k
         if n>k:
             raise ValueError("rerank_top_k must not exceed retrieve_top_k")
+        auto=self.settings.agent_router_enabled if auto_route is None else auto_route
+        if type(auto) is not bool:
+            raise ValueError("auto_route must be a boolean")
         initial: AgentState={"query":body.query,"search_query":body.query,"retrieve_top_k":k,
-            "rerank_top_k":n,"use_reranker":body.use_reranker,"retry_count":0,"trace":[],"tool_calls":[]}
+            "rerank_top_k":n,"use_reranker":body.use_reranker,"retry_count":0,"trace":[],"tool_calls":[],"auto_route":auto,
+            "route":"reranked_search" if body.use_reranker else "dense_search",
+            "route_source":"fixed","router_model":None,"router_usage":None,"router_attempts":0}
         started=perf_counter()
         final=await self.graph.ainvoke(initial,config={"recursion_limit":16})
         # Publish only final validated output and bounded operational trace.
         # Intermediate generation is not exposed through a public stream.
+        routing={"route":final["route"],"route_source":final["route_source"],
+                 "router_model":final["router_model"],"router_attempts":final["router_attempts"],
+                 "router_usage":final["router_usage"].model_dump(mode="json") if final["router_usage"] else None}
+        if final["route"] in ("direct","unsupported"):
+            direct=final["route"]=="direct"
+            # Direct social replies are explicitly non-grounded, not RAGAnswer objects.
+            answer={"answer":final["direct_text"],"citations":[],"insufficient_evidence":False} if direct else final["answer"].model_dump(mode="json")
+            return {"query":final["query"],"search_query":final["search_query"],
+                    "answer":answer,"answer_mode":"social" if direct else "refusal",
+                    "evidence":[],"cited_evidence":[],"citation_report":{"structural_status":"not_applicable","semantic_status":"not_run","inline_ids":[],"reason":None},
+                    "refusal_reason":final.get("refusal_reason"),"retry_count":0,
+                    "candidate_count":0,"retrieved_count":0,"dropped":{},"context_budget_units":0,
+                    "context_count_method":None,"prompt_bytes":0,"model":None,"usage":None,"attempts":0,
+                    "judge_model":None,"judge_usage":None,"judge_attempts":0,"trace":final["trace"],
+                    "tool_calls":[],"retrieval_timings_ms":{},"total_ms":(perf_counter()-started)*1000,**routing}
         context=final["context"]
-        return {"query":final["query"],"search_query":final["search_query"],
+        return {**routing,"answer_mode":"grounded_rag","query":final["query"],"search_query":final["search_query"],
                 "answer":final["answer"].model_dump(mode="json"),
                 "evidence":[asdict(e) for e in context.evidence],
                 "cited_evidence":[asdict(e) for e in final["cited_evidence"]],

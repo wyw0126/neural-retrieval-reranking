@@ -10,6 +10,7 @@ from app.rag.prompts import PromptBuilder
 from app.rag.citations import CitationValidator, CitationReport
 from app.rag.schemas import RAGAnswer
 from app.agent.tools import ToolRegistry
+from app.agent.router import choose_route, social_reply
 
 
 def event(node, started, status="ok"):
@@ -25,6 +26,33 @@ class AgentNodes:
         self.context_builder=ContextBuilder(settings)
         self.prompt_builder=PromptBuilder(settings)
         self.validator=CitationValidator(settings,llm)
+
+    async def route(self,state: AgentState):
+        t=perf_counter()
+        decision,result=await choose_route(state["query"],self.tools.definitions(),
+            self.llm,self.settings.rag_prompt_budget_bytes)
+        route=decision.route
+        source="llm"
+        if route=="direct" and social_reply(state["query"]) is None:
+            route="reranked_search"
+            source="direct_guard_fallback"
+        return {"route":route,"route_source":source,
+                "use_reranker":route=="reranked_search",
+                "router_model":result.model,"router_usage":result.usage,
+                "router_attempts":result.attempts,"trace":event("route",t)}
+
+    async def direct(self,state: AgentState):
+        t=perf_counter()
+        text=social_reply(state["query"])
+        if text is None:
+            raise ValueError("Direct route is restricted to standalone social utterances")
+        return {"direct_text":text,"trace":event("direct",t)}
+
+    async def unsupported(self,state: AgentState):
+        t=perf_counter()
+        return {"answer":RAGAnswer(answer="当前系统仅支持知识检索与问答，无法执行该任务。 / This task is outside the available knowledge retrieval tools.",
+                                  citations=[],insufficient_evidence=True),
+                "refusal_reason":"unsupported_task","trace":event("unsupported",t,"refused")}
 
     async def retrieve(self,state: AgentState):
         t=perf_counter()
